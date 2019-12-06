@@ -1,0 +1,28 @@
+name: Basic checks
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run test suite
+        run: composer run-script test
+
+      - name: Fix style errors and test linting
+        run: composer run-script fix-style && composer run-script lint
+
+      - name: Run Static Analysis
+        run: composer run-script analysis
+
+# bash <(curl -s https://codecov.io/bash)
