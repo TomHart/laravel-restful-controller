@@ -163,10 +163,10 @@ abstract class AbstractRestfulController extends BaseController
      */
     private function findModel($id): Model
     {
-        /** @var Builder $classFQDN */
+        /** @var string $classFQDN */
         $classFQDN = $this->getModelClass();
         /** @var Model $class */
-        $class = $classFQDN::findOrFail($id);
+        $class = (new $classFQDN())->findOrFail($id);
         return $class;
     }
 
