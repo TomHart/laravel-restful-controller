@@ -166,7 +166,7 @@ abstract class AbstractRestfulController extends BaseController
         /** @var Builder $classFQDN */
         $classFQDN = $this->getModelClass();
         /** @var Model $class */
-        $class = $classFQDN->findOrFail($id);
+        $class = $classFQDN::findOrFail($id);
         return $class;
     }
 
