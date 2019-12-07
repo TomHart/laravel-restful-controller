@@ -1,6 +1,5 @@
 {
   "name": "tomhart/laravel-restful-controller",
-  "version": "1.0.0",
   "description": "Laravel Restful Controller",
   "keywords": [
     "tomhart",
