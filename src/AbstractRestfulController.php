@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Redirector;
+use Illuminate\Routing\Route;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response as SymResponse;
 
@@ -24,7 +27,7 @@ abstract class AbstractRestfulController extends BaseController
 
     /**
      * The views to render.
-     * @var array
+     * @var string[]
      */
     protected $views = [];
 
@@ -60,13 +63,13 @@ abstract class AbstractRestfulController extends BaseController
     /**
      * Return a list of matching models.
      * @param Request $request
-     * @return JsonResponse
+     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
     public function index(Request $request)
     {
         $builder = $this->createModelQueryBuilder();
 
-        foreach ($request->input() as $column => $value) {
+        foreach ((array)$request->input() as $column => $value) {
             $this->filterValue($builder, $column, $value);
         }
 
@@ -78,27 +81,27 @@ abstract class AbstractRestfulController extends BaseController
     /**
      * Handles creating a model. The C of CRUD
      * @param Request $request
-     * @return Factory|JsonResponse|View
+     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
     public function store(Request $request)
     {
         $model = $this->newModelInstance();
 
-        foreach ($request->input() as $column => $value) {
+        foreach ((array)$request->input() as $column => $value) {
             $model->$column = $value;
         }
 
         $model->save();
 
 
-        return $this->return($request, $this->findModel($model->id), 'store');
+        return $this->return($request, $this->findModel($model->getAttribute('id')), 'store');
     }
 
     /**
      * Shows a model. The R of CRUD.
      * @param Request $request
-     * @param $id
-     * @return Factory|JsonResponse|View
+     * @param int $id
+     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
     public function show(Request $request, $id)
     {
@@ -110,14 +113,14 @@ abstract class AbstractRestfulController extends BaseController
     /**
      * Update a record. The U of CRUD.
      * @param Request $request
-     * @param $id
-     * @return Factory|JsonResponse|View
+     * @param int $id
+     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
     public function update(Request $request, $id)
     {
         $model = $this->findModel($id);
 
-        foreach ($request->input() as $column => $value) {
+        foreach ((array)$request->input() as $column => $value) {
             $model->$column = $value;
         }
 
@@ -129,7 +132,7 @@ abstract class AbstractRestfulController extends BaseController
     /**
      * Destroy a model. The D of CRUD.
      * @param Request $request
-     * @param $id
+     * @param int $id
      * @return ResponseFactory|Response
      * @throws Exception
      */
@@ -155,13 +158,16 @@ abstract class AbstractRestfulController extends BaseController
 
     /**
      * Finds the model instance.
-     * @param $id
+     * @param int $id
      * @return Model
      */
-    private function findModel($id)
+    private function findModel($id): Model
     {
+        /** @var Builder $classFQDN */
         $classFQDN = $this->getModelClass();
-        return $classFQDN::findOrFail($id);
+        /** @var Model $class */
+        $class = $classFQDN->findOrFail($id);
+        return $class;
     }
 
     /**
@@ -169,7 +175,7 @@ abstract class AbstractRestfulController extends BaseController
      * @param Request $request
      * @param mixed $data
      * @param string $method
-     * @return Factory|JsonResponse|View
+     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
     private function return(Request $request, $data, string $method)
     {
@@ -182,10 +188,11 @@ abstract class AbstractRestfulController extends BaseController
         }
 
         if ($request->expectsJson()) {
-            return response()->json($data, $status);
+            return app(ResponseFactory::class)->json($data, $status);
         }
 
-        if (isset($this->views[$method]) && view()->exists($this->views[$method])) {
+        if (isset($this->views[$method]) && app(Factory::class)->exists($this->views[$method])) {
+            /** @var View $view */
             $view = view($this->views[$method], [
                 'data' => $data
             ]);
@@ -198,6 +205,7 @@ abstract class AbstractRestfulController extends BaseController
             case 'update':
                 // If it's store/update, and the user isn't asking for JSON, we want to
                 // try and redirect them to the related show record page.
+                /** @var Route|null $route */
                 $route = $request->route();
                 if ($route) {
                     $name = $route->getName();
@@ -206,14 +214,16 @@ abstract class AbstractRestfulController extends BaseController
                         array_pop($exploded);
                         $topLevel = array_pop($exploded);
 
-                        return redirect(route("$topLevel.show", [
-                            str_replace('-', '_', $topLevel) => $data->id
-                        ]));
+                        if ($topLevel) {
+                            return redirect(route("$topLevel.show", [
+                                str_replace('-', '_', $topLevel) => $data->id
+                            ]));
+                        }
                     }
                 }
                 break;
         }
 
-        return response()->json($data, $status);
+        return app(ResponseFactory::class)->json($data, $status);
     }
 }

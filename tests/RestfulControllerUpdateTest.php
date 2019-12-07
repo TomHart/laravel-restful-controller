@@ -21,14 +21,15 @@ class RestfulControllerUpdateTest extends TestCase
     /**
      * Test a single record can be saved and returned as JSON.
      */
-    public function testUpdateReturnsJson()
+    public function testUpdateReturnsJson(): void
     {
 
         $model = new ModelTest();
         $model->name = 'Test 1';
         $model->save();
 
-        $response = $this->put(route('model-test.update', [
+        /** @var TestResponse $response1 */
+        $response1 = $this->put(route('model-test.update', [
             'model_test' => $model->id
         ]), [
             'name' => 'Test 2'
@@ -36,6 +37,8 @@ class RestfulControllerUpdateTest extends TestCase
             'Accept' => 'application/json'
         ]);
 
+        /** @var JsonResponse $response */
+        $response = $response1->baseResponse;
         $data = (array)$response->getData();
 
         $this->assertArrayHasKey('id', $data);
@@ -49,21 +52,21 @@ class RestfulControllerUpdateTest extends TestCase
     /**
      * Test a single record can be saved and redirected to the show page..
      */
-    public function testUpdateRedirectsToShow()
+    public function testUpdateRedirectsToShow(): void
     {
 
         $model = new ModelTest();
         $model->name = 'Test 1';
         $model->save();
 
-        $response = $this->put(route('model-test.update', [
+        $response1 = $this->put(route('model-test.update', [
             'model_test' => $model->id
         ]), [
             'name' => 'Test 2'
         ]);
 
-        /** @var RedirectResponse $r */
-        $response = $response->baseResponse;
+        /** @var RedirectResponse $response */
+        $response = $response1->baseResponse;
 
         $this->assertEquals(RedirectResponse::class, get_class($response));
         $this->assertEquals(SymResponse::HTTP_FOUND, $response->getStatusCode());

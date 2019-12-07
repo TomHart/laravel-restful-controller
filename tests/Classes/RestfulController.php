@@ -11,7 +11,7 @@ class RestfulController extends AbstractRestfulController
 
     /**
      * The views to render.
-     * @var array
+     * @var string[]
      */
     protected $views = [
         'index' => 'index',

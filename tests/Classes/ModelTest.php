@@ -2,10 +2,13 @@
 
 namespace TomHart\Restful\Tests\Classes;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @property string name
+ * @property int $id
+ * @property string $name
+ * @method find(int $id)
  */
 class ModelTest extends Model
 {

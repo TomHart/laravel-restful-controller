@@ -21,18 +21,21 @@ class RestfulControllerStoreTest extends TestCase
     /**
      * Test a single record can be saved and returned as JSON.
      */
-    public function testStoreReturnsJson()
+    public function testStoreReturnsJson(): void
     {
 
-        $response = $this->post(route('model-test.store'), [
+        /** @var TestResponse $response1 */
+        $response1 = $this->post(route('model-test.store'), [
             'name' => 'Test 1'
         ], [
             'Accept' => 'application/json'
         ]);
 
+        /** @var JsonResponse $response */
+        $response = $response1->baseResponse;
         $data = (array)$response->getData();
 
-        $response->assertStatus(SymResponse::HTTP_CREATED);
+        $response1->assertStatus(SymResponse::HTTP_CREATED);
         $this->assertArrayHasKey('id', $data);
         $this->assertArrayHasKey('name', $data);
         $this->assertArrayHasKey('number', $data);
@@ -43,7 +46,7 @@ class RestfulControllerStoreTest extends TestCase
     /**
      * Test a single record can be saved and redirected to the show page..
      */
-    public function testStoreRendersView()
+    public function testStoreRendersView(): void
     {
 
         $response = $this->post(route('model-test.store'), [
@@ -51,22 +54,22 @@ class RestfulControllerStoreTest extends TestCase
         ]);
 
         $this->assertEquals(Response::class, get_class($response->baseResponse));
-        $this->assertEquals(SymResponse::HTTP_CREATED, $response->getStatusCode());
+        $this->assertEquals(SymResponse::HTTP_CREATED, $response->baseResponse->getStatusCode());
     }
 
 
     /**
      * Test a single record can be saved and redirected to the show page..
      */
-    public function testStoreRedirectsToShow()
+    public function testStoreRedirectsToShow(): void
     {
 
-        $response = $this->post(route('model-test2.store'), [
+        $response1 = $this->post(route('model-test2.store'), [
             'name' => 'Test 1'
         ]);
 
-        /** @var RedirectResponse $r */
-        $response = $response->baseResponse;
+        /** @var RedirectResponse $response */
+        $response = $response1->baseResponse;
 
         $this->assertEquals(RedirectResponse::class, get_class($response));
         $this->assertEquals(SymResponse::HTTP_FOUND, $response->getStatusCode());

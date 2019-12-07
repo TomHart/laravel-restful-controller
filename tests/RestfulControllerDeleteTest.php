@@ -2,16 +2,7 @@
 
 namespace TomHart\Restful\Tests;
 
-
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\TestResponse;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response as SymResponse;
-use TomHart\Restful\AbstractRestfulController;
 use TomHart\Restful\Tests\Classes\ModelTest;
 
 class RestfulControllerDeleteTest extends TestCase
@@ -21,7 +12,7 @@ class RestfulControllerDeleteTest extends TestCase
     /**
      * Test a single record can be deleted.
      */
-    public function testDeletingAModel()
+    public function testDeletingAModel(): void
     {
 
         $model = new ModelTest();
@@ -33,15 +24,15 @@ class RestfulControllerDeleteTest extends TestCase
         ]));
 
         $response->assertStatus(SymResponse::HTTP_NO_CONTENT);
-        $this->assertTrue($response->isEmpty());
-        $this->assertNull(ModelTest::find($model->id));
+        $this->assertTrue($response->baseResponse->isEmpty());
+        $this->assertNull((new ModelTest())->find($model->id));
     }
 
 
     /**
      * Test a single record can be saved and redirected to the show page..
      */
-    public function testDeletingNonExistentReturns404()
+    public function testDeletingNonExistentReturns404(): void
     {
         $response = $this->delete(route('model-test.destroy', [
             'model_test' => 1
@@ -49,6 +40,4 @@ class RestfulControllerDeleteTest extends TestCase
 
         $response->assertStatus(SymResponse::HTTP_NOT_FOUND);
     }
-
-
 }
