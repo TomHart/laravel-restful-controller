@@ -49,17 +49,17 @@ abstract class TestCase extends OrchestraTestCase
      * Test that a response is JSON.
      * @param TestResponse $response
      */
-    protected function responseIsJson(TestResponse $response)
+    protected function responseIsJson(TestResponse $response): void
     {
-        $this->assertStringStartsWith('application/json', $response->headers->get('Content-Type'));
+        $this->assertStringStartsWith('application/json', $response->baseResponse->headers->get('Content-Type'));
     }
 
     /**
      * Test that a response is HTML.
      * @param TestResponse $response
      */
-    protected function responseIsHtml(TestResponse $response)
+    protected function responseIsHtml(TestResponse $response): void
     {
-        $this->assertStringStartsWith('text/html', $response->headers->get('Content-Type'));
+        $this->assertStringStartsWith('text/html', $response->baseResponse->headers->get('Content-Type'));
     }
 }

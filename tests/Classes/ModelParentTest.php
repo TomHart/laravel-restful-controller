@@ -3,6 +3,7 @@
 namespace TomHart\Restful\Tests\Classes;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @property int $id
@@ -22,7 +23,7 @@ class ModelParentTest extends Model
         return 'model_parent';
     }
 
-    public function child()
+    public function child(): BelongsTo
     {
         return $this->belongsTo(ModelTest::class);
     }
