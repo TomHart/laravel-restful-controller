@@ -1,8 +1,6 @@
 <?php
 
-
 namespace TomHart\Restful\Tests\Classes;
-
 
 use TomHart\Restful\AbstractRestfulController;
 

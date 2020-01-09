@@ -9,7 +9,7 @@
 This library adds an `AbstractRestfulController` to to be basic heavy lifting of a CRUD controller. 
 
 
-### Usage
+## Usage
 * Create a controller extending from this, and implement the method `getModelClass`
 
 ```php
@@ -29,7 +29,7 @@ class BlogController extends AbstractRestfulController
 
 ```
 
-* If you want it to render views for index, show, or store, add a views property
+* If you want it to render views for index, show, or store, add a `$views` property
 ```php
 
     /**
@@ -48,3 +48,8 @@ If `$views` is empty, or the specified view doesn't exist, then JSON is returned
 Route::resource('blog', 'BlogController');
 ```
 
+### Relationships
+
+The show route can return your models relationships. If you send a `X-Load-Relationship` header, 
+with a comma separated value list of headers to load. See the `testRelationshipsCanBeReturned` test 
+for an example.

@@ -3,9 +3,8 @@
 namespace TomHart\Restful\Tests;
 
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Support\Facades\Route;
-use Orchestra\Testbench\Concerns\CreatesApplication;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase
@@ -43,5 +42,24 @@ abstract class TestCase extends OrchestraTestCase
 
         Route::resource('model-test', 'TomHart\Restful\Tests\Classes\RestfulController');
         Route::resource('model-test2', 'TomHart\Restful\Tests\Classes\RestfulNoViewsController');
+        Route::resource('model-parent', 'TomHart\Restful\Tests\Classes\RestfulParentController');
+    }
+
+    /**
+     * Test that a response is JSON.
+     * @param TestResponse $response
+     */
+    protected function responseIsJson(TestResponse $response)
+    {
+        $this->assertStringStartsWith('application/json', $response->headers->get('Content-Type'));
+    }
+
+    /**
+     * Test that a response is HTML.
+     * @param TestResponse $response
+     */
+    protected function responseIsHtml(TestResponse $response)
+    {
+        $this->assertStringStartsWith('text/html', $response->headers->get('Content-Type'));
     }
 }

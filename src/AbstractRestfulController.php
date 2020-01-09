@@ -5,16 +5,16 @@ namespace TomHart\Restful;
 use Exception;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Contracts\View\Factory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Redirector;
 use Illuminate\Routing\Route;
 use Illuminate\View\View;
@@ -36,29 +36,6 @@ abstract class AbstractRestfulController extends BaseController
      * @return string
      */
     abstract protected function getModelClass(): string;
-
-
-    /**
-     * Generate a new query builder for the model.
-     * @return Builder
-     */
-    private function createModelQueryBuilder(): Builder
-    {
-        $class = $this->newModelInstance();
-
-        return $class->newQuery();
-    }
-
-    /**
-     * Creates a new model instance.
-     * @return Model
-     */
-    private function newModelInstance(): Model
-    {
-        $classFQDN = $this->getModelClass();
-
-        return new $classFQDN;
-    }
 
     /**
      * Return a list of matching models.
@@ -105,7 +82,7 @@ abstract class AbstractRestfulController extends BaseController
      */
     public function show(Request $request, $id)
     {
-        $model = $this->findModel($id);
+        $model = $this->findModel($id, $request);
 
         return $this->return($request, $model, 'show');
     }
@@ -156,17 +133,45 @@ abstract class AbstractRestfulController extends BaseController
         $builder->where($column, $value);
     }
 
+
+    /**
+     * Generate a new query builder for the model.
+     * @return Builder
+     */
+    private function createModelQueryBuilder(): Builder
+    {
+        $class = $this->newModelInstance();
+
+        return $class->newQuery();
+    }
+
+    /**
+     * Creates a new model instance.
+     * @return Model
+     */
+    private function newModelInstance(): Model
+    {
+        $classFQDN = $this->getModelClass();
+
+        return new $classFQDN;
+    }
+
     /**
      * Finds the model instance.
      * @param int $id
+     * @param Request|null $request
      * @return Model
      */
-    private function findModel($id): Model
+    private function findModel($id, Request $request = null): Model
     {
-        /** @var string $classFQDN */
-        $classFQDN = $this->getModelClass();
-        /** @var Model $class */
-        $class = (new $classFQDN())->findOrFail($id);
+        /** @var Model|Builder $class */
+        $class = $this->newModelInstance();
+
+        if ($request) {
+            $this->preloadRelationships($class, $request);
+        }
+
+        $class = $class->findOrFail($id);
         return $class;
     }
 
@@ -187,7 +192,7 @@ abstract class AbstractRestfulController extends BaseController
                 break;
         }
 
-        if ($request->expectsJson()) {
+        if ($request->wantsJson()) {
             return app(ResponseFactory::class)->json($data, $status);
         }
 
@@ -225,5 +230,26 @@ abstract class AbstractRestfulController extends BaseController
         }
 
         return app(ResponseFactory::class)->json($data, $status);
+    }
+
+    /**
+     * Preload any relationships required.
+     * @param Model $class
+     * @param Request $request
+     * @return void
+     */
+    private function preloadRelationships(Model &$class, Request $request): void
+    {
+        $header = $request->headers->get('X-Load-Relationship');
+        if (!$header) {
+            return;
+        }
+
+        $relationships = explode(',', $header);
+        if (!$relationships) {
+            return;
+        }
+
+        $class = $class->with($relationships);
     }
 }

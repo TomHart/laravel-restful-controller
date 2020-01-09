@@ -4,7 +4,6 @@ namespace TomHart\Restful\Tests;
 
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\Response as SymResponse;
 use TomHart\Restful\Tests\Classes\ModelTest;
 
@@ -13,7 +12,10 @@ class RestfulControllerIndexTest extends TestCase
 
 
     /**
-     * Test index returns a view.
+     * Index should return a view providing
+     * ones there and we're not asking for JSON.
+     * We don't need to test what data is returned
+     * as the JSON portion tests that as it's easier.
      */
     public function testIndexReturnsView(): void
     {
@@ -23,13 +25,14 @@ class RestfulControllerIndexTest extends TestCase
         /** @var TestResponse $response */
         $response = $this->get(route('model-test.index'));
 
-        $this->assertEquals(Response::class, get_class($response->baseResponse));
+        $this->responseIsHtml($response);
+
         $this->assertEquals(SymResponse::HTTP_OK, $response->baseResponse->getStatusCode());
     }
 
 
     /**
-     * Test index returns JSON if header present.
+     * Index should return JSON if header is present.
      */
     public function testIndexReturnsJsonIfAskedFor(): void
     {
@@ -45,13 +48,14 @@ class RestfulControllerIndexTest extends TestCase
         $response = $response1->baseResponse;
         $data = $response->getData();
 
-        $this->assertEquals(JsonResponse::class, get_class($response));
+        $this->responseIsJson($response1);
+
         $this->assertEquals(1, $data->total);
         $this->assertEquals(1, count($data->data));
     }
 
     /**
-     * Test index returns JSON if header present.
+     * Index should return JSON if no view is defined.
      */
     public function testIndexReturnsJsonIfNoViewAvailable(): void
     {
@@ -65,7 +69,8 @@ class RestfulControllerIndexTest extends TestCase
         $response = $response1->baseResponse;
         $data = $response->getData();
 
-        $this->assertEquals(JsonResponse::class, get_class($response));
+        $this->responseIsJson($response1);
+
         $this->assertEquals(1, $data->total);
         $this->assertEquals(1, count($data->data));
     }
@@ -94,7 +99,8 @@ class RestfulControllerIndexTest extends TestCase
         $response = $response1->baseResponse;
         $data = $response->getData();
 
-        $this->assertEquals(JsonResponse::class, get_class($response));
+        $this->responseIsJson($response1);
+
         $this->assertEquals(1, $data->total);
         $this->assertEquals(1, count($data->data));
     }
@@ -119,7 +125,8 @@ class RestfulControllerIndexTest extends TestCase
         $response = $response1->baseResponse;
         $data = $response->getData();
 
-        $this->assertEquals(JsonResponse::class, get_class($response));
+        $this->responseIsJson($response1);
+
         $this->assertEquals(20, $data->total);
         $this->assertEquals(15, count($data->data));
         $this->assertNotNull($data->next_page_url);
