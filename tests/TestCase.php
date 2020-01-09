@@ -51,7 +51,7 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function responseIsJson(TestResponse $response): void
     {
-        $this->assertStringStartsWith('application/json', $response->baseResponse->headers->get('Content-Type'));
+        $this->assertStringStartsWith('application/json', (string)$response->baseResponse->headers->get('Content-Type'));
     }
 
     /**
@@ -60,6 +60,6 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function responseIsHtml(TestResponse $response): void
     {
-        $this->assertStringStartsWith('text/html', $response->baseResponse->headers->get('Content-Type'));
+        $this->assertStringStartsWith('text/html', (string)$response->baseResponse->headers->get('Content-Type'));
     }
 }
