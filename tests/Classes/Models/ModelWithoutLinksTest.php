@@ -1,8 +1,7 @@
 <?php
 
-namespace TomHart\Restful\Tests\Classes;
+namespace TomHart\Restful\Tests\Classes\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -10,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $name
  * @method find(int $id)
  */
-class ModelTest extends Model
+class ModelWithoutLinksTest extends Model
 {
 
     public function getRouteKey()

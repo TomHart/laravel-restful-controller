@@ -3,7 +3,7 @@
 namespace TomHart\Restful\Tests;
 
 use Symfony\Component\HttpFoundation\Response as SymResponse;
-use TomHart\Restful\Tests\Classes\ModelTest;
+use TomHart\Restful\Tests\Classes\Models\ModelTest;
 
 class RestfulControllerDeleteTest extends TestCase
 {

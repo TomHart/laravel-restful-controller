@@ -3,15 +3,11 @@
 namespace TomHart\Restful\Tests;
 
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response as SymResponse;
-use TomHart\Restful\AbstractRestfulController;
 use TomHart\Restful\Tests\Classes\ModelTest;
 
 class RestfulControllerStoreTest extends TestCase

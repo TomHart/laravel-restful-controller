@@ -16,6 +16,13 @@ class CreateModelParentTestTable extends Migration
             $table->unsignedInteger('number')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('model_parent_test_model_test', static function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('model_parent_test_id');
+            $table->unsignedInteger('model_test_id');
+            $table->timestamps();
+        });
     }
 
     public function down()
