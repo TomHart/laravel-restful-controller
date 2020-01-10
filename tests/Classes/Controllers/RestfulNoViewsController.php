@@ -1,9 +1,10 @@
 <?php
 
 
-namespace TomHart\Restful\Tests\Classes;
+namespace TomHart\Restful\Tests\Classes\Controllers;
 
 use TomHart\Restful\AbstractRestfulController;
+use TomHart\Restful\Tests\Classes\Models\ModelTest;
 
 class RestfulNoViewsController extends AbstractRestfulController
 {

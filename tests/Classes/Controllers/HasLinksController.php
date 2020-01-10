@@ -1,10 +1,11 @@
 <?php
 
-namespace TomHart\Restful\Tests\Classes;
+namespace TomHart\Restful\Tests\Classes\Controllers;
 
 use TomHart\Restful\AbstractRestfulController;
+use TomHart\Restful\Tests\Classes\Models\ModelHasLinksTest;
 
-class RestfulController extends AbstractRestfulController
+class HasLinksController extends AbstractRestfulController
 {
 
     /**
@@ -23,6 +24,6 @@ class RestfulController extends AbstractRestfulController
      */
     protected function getModelClass(): string
     {
-        return ModelTest::class;
+        return ModelHasLinksTest::class;
     }
 }
