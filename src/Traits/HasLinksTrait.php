@@ -19,6 +19,21 @@ trait HasLinksTrait
 {
 
     /**
+     * Append attributes to query when building a query.
+     *
+     * @param string[]|string $attributes
+     * @return $this
+     */
+    abstract public function append($attributes);
+
+    /**
+     * Get the value of the model's route key.
+     *
+     * @return mixed
+     */
+    abstract public function getRouteKey();
+
+    /**
      * Add the links attribute to the model.
      */
     public function initializeHasLinksTrait(): void
@@ -129,7 +144,11 @@ trait HasLinksTrait
     {
         $routeStub = $model->getRouteName();
 
-        if (!$routeStub) {
+        if ($routeStub === null) {
+            return false;
+        }
+
+        if (!property_exists($this, 'primaryKey')) {
             return false;
         }
 
@@ -146,7 +165,7 @@ trait HasLinksTrait
             case 'destroy':
             case 'update':
             case 'show':
-                $params = [$this->getRouteKey() => $this->id];
+                $params = [$this->getRouteKey() => $this->primaryKey];
                 break;
         }
 
