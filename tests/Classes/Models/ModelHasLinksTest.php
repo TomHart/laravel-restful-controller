@@ -3,6 +3,7 @@
 namespace TomHart\Restful\Tests\Classes\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 use TomHart\Restful\Concerns\HasLinks;
 use TomHart\Restful\Tests\Classes\ModelTest;
@@ -25,5 +26,10 @@ class ModelHasLinksTest extends Model implements HasLinks
     public function getRouteKeyName()
     {
         return 'has_links_test';
+    }
+
+    public function without(): HasOne
+    {
+        return $this->hasOne(ModelWithoutLinksTest::class);
     }
 }

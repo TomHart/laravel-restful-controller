@@ -78,6 +78,9 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function responseIsHtml(TestResponse $response): void
     {
-        $this->assertStringStartsWith('text/html', (string)$response->baseResponse->headers->get('Content-Type'));
+        $this->assertStringStartsWith(
+            'text/html',
+            (string)$response->baseResponse->headers->get('Content-Type')
+        );
     }
 }

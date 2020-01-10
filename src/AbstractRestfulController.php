@@ -267,7 +267,6 @@ abstract class AbstractRestfulController extends BaseController
                 if (($redirect = $this->redirectToShowRoute($request, $data))) {
                     return $redirect;
                 }
-                break;
         }
 
         return app(ResponseFactory::class)->json($data, $status);
@@ -314,14 +313,11 @@ abstract class AbstractRestfulController extends BaseController
     private function preloadRelationships(Model &$class, Request $request): void
     {
         $header = $request->headers->get('X-Load-Relationship');
-        if (!$header) {
+        if (!$header || empty($header)) {
             return;
         }
 
-        $relationships = explode(',', $header);
-        if (empty($relationships)) {
-            return;
-        }
+        $relationships = array_filter(explode(',', $header));
 
         $class = $class->with($relationships);
     }

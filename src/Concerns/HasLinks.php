@@ -26,4 +26,26 @@ interface HasLinks
      * @return string|null
      */
     public function getRouteName(): ?string;
+
+    /**
+     * Get the value of the model's route key.
+     *
+     * @return mixed
+     */
+    public function getRouteKey();
+
+    /**
+     * Get the primary key for the model.
+     *
+     * @return string|null
+     */
+    public function getKeyName();
+
+    /**
+     * Get an attribute from the model.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function getAttribute($key);
 }

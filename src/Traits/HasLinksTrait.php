@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use ReflectionException;
 use ReflectionMethod;
 use TomHart\Restful\Concerns\HasLinks;
+use TomHart\Restful\LinkBuilder;
 
 trait HasLinksTrait
 {
@@ -70,7 +71,7 @@ trait HasLinksTrait
         $router = app(Router::class);
 
         foreach ($routes as $routePart) {
-            $link = $this->buildLink($this, $routePart, $router);
+            $link = LinkBuilder::buildLink($this, $routePart, $router);
 
             if ($link) {
                 $links[$routePart] = $link;
@@ -117,8 +118,8 @@ trait HasLinksTrait
                 continue;
             }
 
-            $createLink = $this->buildLink($targetClass, 'create', $router);
-            $storeLink = $this->buildLink($targetClass, 'store', $router);
+            $createLink = LinkBuilder::buildLink($targetClass, 'create', $router);
+            $storeLink = LinkBuilder::buildLink($targetClass, 'store', $router);
 
             if ($createLink || $storeLink) {
                 $links[$method] = [
@@ -131,70 +132,6 @@ trait HasLinksTrait
         return $links;
     }
 
-
-    /**
-     * Builds a link if possible
-     *
-     * @param HasLinks $model
-     * @param string $routePart
-     * @param Router $router
-     * @return mixed[]|bool
-     */
-    private function buildLink(HasLinks $model, string $routePart, Router $router)
-    {
-        $routeStub = $model->getRouteName();
-
-        if ($routeStub === null) {
-            return false;
-        }
-
-        if (!property_exists($this, 'primaryKey')) {
-            return false;
-        }
-
-        // Make the route name, and check if it exists.
-        $routeName = "$routeStub.$routePart";
-
-        if (!$router->has($routeName)) {
-            return false;
-        }
-
-        // Get any params needed to build the URL.
-        $params = [];
-        switch ($routePart) {
-            case 'destroy':
-            case 'update':
-            case 'show':
-                $params = [$this->getRouteKey() => $this->primaryKey];
-                break;
-        }
-
-        // Get the route.
-        $route = $router->getRoutes()->getByName($routeName);
-
-        if (!$route) {
-            return false;
-        }
-
-        // Get the methods applicable to the route, ignoring HEAD and PATCH.
-        $methods = collect($route->methods());
-        $methods = $methods->filter(static function ($item) {
-            return !in_array($item, ['HEAD', 'PATCH']);
-        })->map(static function ($str) {
-            return strtolower($str);
-        });
-
-        // If there's only 1, return just that, otherwise, return an array.
-        if ($methods->count() === 1) {
-            $methods = $methods->first();
-        }
-
-        // Add!
-        return [
-            'method' => $methods,
-            'href' => route($routeName, $params, false)
-        ];
-    }
 
     /**
      * Return the name for the resource route this model

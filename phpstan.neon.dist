@@ -1,4 +1,3 @@
 parameters:
         excludes_analyse:
-        - tests/database/migrations/*
-        - tests/Classes/Models/*
+        - tests/*
