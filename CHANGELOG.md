@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No Planned Updates_
 
+## [1.3.1] - 2020-01-11
+### Fixed
+- Issue-4: Fixed pagination
+
 ## [1.3.0] - 2020-01-11
 ### Added
 - Issue-5: Added a view link to relationship responses
