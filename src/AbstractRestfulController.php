@@ -10,6 +10,12 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -20,6 +26,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Routing\Redirector;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response as SymResponse;
 
@@ -172,7 +179,7 @@ abstract class AbstractRestfulController extends BaseController
         // Loop through the parts.
         foreach ($parts as $part) {
             // Look for an array accessor, "children[5]" for example.
-            preg_match('/\[(\d+)\]$/', $part, $matches);
+            preg_match('/\[(\d+)]$/', $part, $matches);
             $offset = false;
 
             // If one was found, save the offset and remove it from $part.
@@ -184,7 +191,8 @@ abstract class AbstractRestfulController extends BaseController
             $model = $model->$part();
 
             // If it's a relationship, see if it's paginate-able.
-            if (method_exists($model, 'paginate')) {
+            if (stripos(get_class($model), 'Many') !== false) {
+                /** @var BelongsToMany|HasMany|HasOneOrMany|MorphMany|MorphOneOrMany|MorphToMany $model */
                 $model = $model->paginate();
             } elseif ($model instanceof Relation) {
                 $model = $model->getResults();
@@ -299,8 +307,10 @@ abstract class AbstractRestfulController extends BaseController
             return null;
         }
 
+        $key = Str::singular(str_replace('-', '_', $topLevel));
+
         return redirect(route("$topLevel.show", [
-            str_replace('-', '_', $topLevel) => $data->id
+            $key => $data->id
         ]));
     }
 

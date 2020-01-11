@@ -2,8 +2,6 @@
 
 namespace TomHart\Restful\Concerns;
 
-use Illuminate\Support\Collection;
-
 interface HasLinks
 {
 

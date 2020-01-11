@@ -5,7 +5,6 @@ namespace TomHart\Restful\Tests\Classes\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Str;
 use TomHart\Restful\Concerns\HasLinks;
 use TomHart\Restful\Traits\HasLinksTrait;
 
@@ -17,16 +16,6 @@ use TomHart\Restful\Traits\HasLinksTrait;
 class ModelParentTest extends Model implements HasLinks
 {
     use HasLinksTrait;
-
-    public function getRouteKey()
-    {
-        return 'model_parent';
-    }
-
-    public function getRouteKeyName()
-    {
-        return 'model_parent';
-    }
 
     public function children(): BelongsToMany
     {

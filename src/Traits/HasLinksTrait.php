@@ -71,6 +71,7 @@ trait HasLinksTrait
         $router = app(Router::class);
 
         foreach ($routes as $routePart) {
+            /** @var HasLinks $this */
             $link = LinkBuilder::buildLink($this, $routePart, $router);
 
             if ($link) {
@@ -80,7 +81,6 @@ trait HasLinksTrait
 
         return $links;
     }
-
 
     /**
      * Builds the links to create the relationship resources.
@@ -120,6 +120,7 @@ trait HasLinksTrait
 
             $createLink = LinkBuilder::buildLink($targetClass, 'create', $router);
             $storeLink = LinkBuilder::buildLink($targetClass, 'store', $router);
+            /** @var HasLinks $this */
             $viewLink = LinkBuilder::buildLink($this, 'show.extra', $router, $method);
 
             $links[$method] = [
@@ -132,17 +133,13 @@ trait HasLinksTrait
         return $links;
     }
 
-
     /**
      * Return the name for the resource route this model
      * @return string|null
      */
     public function getRouteName(): ?string
     {
-        $name = $this->getRouteKey();
-        if (!$name) {
-            return null;
-        }
-        return Str::kebab(Str::studly($name));
+        $name = class_basename($this);
+        return Str::plural(Str::kebab(Str::studly($name)));
     }
 }

@@ -19,7 +19,7 @@ class RestfulControllerDeleteTest extends TestCase
         $model->name = 'Test 1';
         $model->save();
 
-        $response = $this->delete(route('model-test.destroy', [
+        $response = $this->delete(route('model-tests.destroy', [
             'model_test' => $model->id
         ]));
 
@@ -34,7 +34,7 @@ class RestfulControllerDeleteTest extends TestCase
      */
     public function testDeletingNonExistentReturns404(): void
     {
-        $response = $this->delete(route('model-test.destroy', [
+        $response = $this->delete(route('model-tests.destroy', [
             'model_test' => 1
         ]));
 

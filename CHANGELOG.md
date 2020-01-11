@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No Planned Updates_
 
+## [1.3.2] - 2020-01-11
+### Fixed
+- Issue-2: Can now paginate HasMany relationship.
+
 ## [1.3.1] - 2020-01-11
 ### Fixed
 - Issue-4: Fixed pagination

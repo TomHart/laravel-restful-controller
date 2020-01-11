@@ -12,16 +12,6 @@ class UnhappyPathsTest extends TestCase
 {
 
     /**
-     * Make sure having no route key doesn't break anything.
-     */
-    public function testNoRouteKey(): void
-    {
-        $mock = $this->getMockForTrait(HasLinksTrait::class);
-
-        $this->assertNull($mock->getRouteName());
-    }
-
-    /**
      *
      */
     public function testNoRouteFromRequest(): void
