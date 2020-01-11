@@ -2,7 +2,6 @@
 
 namespace TomHart\Restful\Tests;
 
-use Illuminate\Routing\Route;
 use Illuminate\Routing\RouteCollection;
 use Illuminate\Routing\Router;
 use TomHart\Restful\Concerns\HasLinks;
@@ -34,6 +33,7 @@ class LinkBuilderTest extends TestCase
             ->once()
             ->andReturnNull();
 
+        /** @var HasLinks $mock */
         $link = LinkBuilder::buildLink($mock, 'part', $this->router);
 
         $this->assertFalse($link);
@@ -56,7 +56,7 @@ class LinkBuilderTest extends TestCase
             ->once()
             ->andReturnNull();
 
-
+        /** @var HasLinks $mock */
         $link = LinkBuilder::buildLink($mock, 'part', $this->router);
 
         $this->assertFalse($link);
@@ -85,6 +85,7 @@ class LinkBuilderTest extends TestCase
             ->once()
             ->andReturn($routeCollection);
 
+        /** @var HasLinks $mock */
         $link = LinkBuilder::buildLink($mock, 'part', $this->router);
 
         $this->assertFalse($link);

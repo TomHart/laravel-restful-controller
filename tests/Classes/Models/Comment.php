@@ -12,12 +12,14 @@ use TomHart\Restful\Traits\HasLinksTrait;
  * @property string $name
  * @method find(int $id)
  */
-class ModelTest extends Model implements HasLinks
+class Comment extends Model implements HasLinks
 {
     use HasLinksTrait;
 
-    public function parent(): HasOne
+
+
+    public function post(): HasOne
     {
-        return $this->hasOne(ModelTest::class);
+        return $this->hasOne(Post::class);
     }
 }

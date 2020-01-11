@@ -26,8 +26,8 @@ class LoadingRelationshipsTest extends TestCase
         $parent->children()->save($child);
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-parent.show', [
-            'model_parent' => $parent->id
+        $response1 = $this->get(route('model-parent-tests.show', [
+            'model_parent_test' => $parent->id
         ]), [
             'Accept' => 'application/json',
             'X-Load-Relationship' => 'children'

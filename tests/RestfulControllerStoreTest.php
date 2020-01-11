@@ -21,7 +21,7 @@ class RestfulControllerStoreTest extends TestCase
     {
 
         /** @var TestResponse $response1 */
-        $response1 = $this->post(route('model-test.store'), [
+        $response1 = $this->post(route('model-tests.store'), [
             'name' => 'Test 1'
         ], [
             'Accept' => 'application/json'
@@ -45,7 +45,7 @@ class RestfulControllerStoreTest extends TestCase
     public function testStoreRendersView(): void
     {
 
-        $response = $this->post(route('model-test.store'), [
+        $response = $this->post(route('model-tests.store'), [
             'name' => 'Test 1'
         ]);
 

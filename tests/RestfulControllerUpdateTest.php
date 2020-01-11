@@ -23,7 +23,7 @@ class RestfulControllerUpdateTest extends TestCase
         $model->save();
 
         /** @var TestResponse $response1 */
-        $response1 = $this->put(route('model-test.update', [
+        $response1 = $this->put(route('model-tests.update', [
             'model_test' => $model->id
         ]), [
             'name' => 'Test 2'
@@ -53,7 +53,7 @@ class RestfulControllerUpdateTest extends TestCase
         $model->name = 'Test 1';
         $model->save();
 
-        $response1 = $this->put(route('model-test.update', [
+        $response1 = $this->put(route('model-tests.update', [
             'model_test' => $model->id
         ]), [
             'name' => 'Test 2'
@@ -65,7 +65,7 @@ class RestfulControllerUpdateTest extends TestCase
         $this->assertEquals(RedirectResponse::class, get_class($response));
         $this->assertEquals(SymResponse::HTTP_FOUND, $response->getStatusCode());
 
-        $this->assertEquals(route('model-test.show', ['model_test' => 1]), $response->headers->get('location'));
+        $this->assertEquals(route('model-tests.show', ['model_test' => 1]), $response->headers->get('location'));
     }
 
 

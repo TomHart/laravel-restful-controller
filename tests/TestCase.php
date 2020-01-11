@@ -4,9 +4,7 @@ namespace TomHart\Restful\Tests;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use TomHart\Restful\RestfulServiceProvider;
 
@@ -56,10 +54,13 @@ abstract class TestCase extends OrchestraTestCase
 
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
-        Route::resource('model-test', 'TomHart\Restful\Tests\Classes\Controllers\RestfulController');
-        Route::resource('has-links-test', 'TomHart\Restful\Tests\Classes\Controllers\HasLinksController');
+        Route::resource('model-tests', 'TomHart\Restful\Tests\Classes\Controllers\RestfulController');
+        Route::resource('model-has-links-tests', 'TomHart\Restful\Tests\Classes\Controllers\HasLinksController');
         Route::resource('model-test2', 'TomHart\Restful\Tests\Classes\Controllers\RestfulNoViewsController');
-        Route::resource('model-parent', 'TomHart\Restful\Tests\Classes\Controllers\RestfulParentController');
+        Route::resource('model-parent-tests', 'TomHart\Restful\Tests\Classes\Controllers\RestfulParentController');
+
+        Route::resource('comments', 'TomHart\Restful\Tests\Classes\Controllers\Controller');
+        Route::resource('posts', 'TomHart\Restful\Tests\Classes\Controllers\PostsController');
     }
 
     /**
@@ -89,8 +90,8 @@ abstract class TestCase extends OrchestraTestCase
     /**
      * Assert that the response has a given JSON structure.
      *
-     * @param  array  $structure
-     * @param  array  $responseData
+     * @param array $structure
+     * @param array $responseData
      * @return $this
      */
     public function assertJsonStructure(array $structure, array $responseData)
@@ -127,5 +128,75 @@ abstract class TestCase extends OrchestraTestCase
             $needle . '}',
             $needle . ',',
         ];
+    }
+
+    /**
+     * Is it a pagination response?
+     * @param TestResponse $response
+     */
+    protected function assertIsPagination(TestResponse $response)
+    {
+
+        $this->assertJsonStructure([
+            'current_page',
+            'data',
+            'first_page_url',
+            'from',
+            'last_page',
+            'last_page_url',
+            'next_page_url',
+            'path',
+            'per_page',
+            'prev_page_url',
+            'to',
+            'total'
+        ], $response->json());
+    }
+
+    /**
+     * Response has the _links
+     * @param TestResponse $response
+     */
+    protected function assertHasLinks(TestResponse $response)
+    {
+        $this->assertJsonStructure([
+            '_links' => [
+                'create' => [
+                    'method',
+                    'href' => [
+                        'relative',
+                        'absolute'
+                    ]
+                ],
+                'store' => [
+                    'method',
+                    'href' => [
+                        'relative',
+                        'absolute'
+                    ]
+                ],
+                'show' => [
+                    'method',
+                    'href' => [
+                        'relative',
+                        'absolute'
+                    ]
+                ],
+                'update' => [
+                    'method',
+                    'href' => [
+                        'relative',
+                        'absolute'
+                    ]
+                ],
+                'destroy' => [
+                    'method',
+                    'href' => [
+                        'relative',
+                        'absolute'
+                    ]
+                ]
+            ]
+        ], $response->json());
     }
 }

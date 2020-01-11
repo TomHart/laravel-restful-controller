@@ -31,8 +31,8 @@ class AccessingChildrenTest extends TestCase
         $parent->children()->save($child2);
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-parent.show.extra', [
-            'model_parent' => $parent->id,
+        $response1 = $this->get(route('model-parent-tests.show.extra', [
+            'model_parent_test' => $parent->id,
             'extra' => 'children'
         ]), [
             'Accept' => 'application/json'
@@ -47,8 +47,8 @@ class AccessingChildrenTest extends TestCase
         $this->assertCount(2, $data['data']);
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-parent.show.extra', [
-            'model_parent' => $parent->id,
+        $response1 = $this->get(route('model-parent-tests.show.extra', [
+            'model_parent_test' => $parent->id,
             'extra' => 'children[1]'
         ]), [
             'Accept' => 'application/json'
@@ -81,8 +81,8 @@ class AccessingChildrenTest extends TestCase
         $parent->save();
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-parent.show.extra', [
-            'model_parent' => $parent->id,
+        $response1 = $this->get(route('model-parent-tests.show.extra', [
+            'model_parent_test' => $parent->id,
             'extra' => 'child'
         ]), [
             'Accept' => 'application/json'
@@ -107,8 +107,8 @@ class AccessingChildrenTest extends TestCase
         $parent->save();
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-parent.show.extra', [
-            'model_parent' => $parent->id,
+        $response1 = $this->get(route('model-parent-tests.show.extra', [
+            'model_parent_test' => $parent->id,
             'extra' => 'name'
         ]), [
             'Accept' => 'application/json'

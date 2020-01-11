@@ -20,7 +20,7 @@ class RestfulControllerShowTest extends TestCase
         $model->save();
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-test.show', [
+        $response1 = $this->get(route('model-tests.show', [
             'model_test' => $model->id
         ]), [
             'Accept' => 'application/json'
@@ -45,7 +45,7 @@ class RestfulControllerShowTest extends TestCase
         $model->name = 'Test 1';
         $model->save();
 
-        $response = $this->get(route('model-test.show', [
+        $response = $this->get(route('model-tests.show', [
             'model_test' => $model->id
         ]));
 

@@ -23,7 +23,7 @@ class RestfulControllerIndexTest extends TestCase
         $model->save();
 
         /** @var TestResponse $response */
-        $response = $this->get(route('model-test.index'));
+        $response = $this->get(route('model-tests.index'));
 
         $this->responseIsHtml($response);
 
@@ -40,7 +40,7 @@ class RestfulControllerIndexTest extends TestCase
         $model->save();
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-test.index'), [
+        $response1 = $this->get(route('model-tests.index'), [
             'Accept' => 'application/json'
         ]);
 
@@ -89,7 +89,7 @@ class RestfulControllerIndexTest extends TestCase
         $model->save();
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-test.index') . '?' . http_build_query([
+        $response1 = $this->get(route('model-tests.index') . '?' . http_build_query([
                 'name' => 'Test 1'
             ]), [
             'Accept' => 'application/json'
@@ -117,7 +117,7 @@ class RestfulControllerIndexTest extends TestCase
         }
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-test.index'), [
+        $response1 = $this->get(route('model-tests.index'), [
             'Accept' => 'application/json'
         ]);
 
