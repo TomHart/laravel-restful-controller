@@ -4,7 +4,9 @@ namespace TomHart\Restful\Tests;
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase
@@ -61,5 +63,48 @@ abstract class TestCase extends OrchestraTestCase
     protected function responseIsHtml(TestResponse $response): void
     {
         $this->assertStringStartsWith('text/html', (string)$response->baseResponse->headers->get('Content-Type'));
+    }
+
+    /**
+     * Assert that the response has a given JSON structure.
+     *
+     * @param  array  $structure
+     * @param  array  $responseData
+     * @return $this
+     */
+    public function assertJsonStructure(array $structure, array $responseData)
+    {
+
+        foreach ($structure as $key => $value) {
+            if (is_array($value) && $key === '*') {
+                $this->assertIsArray($responseData);
+                foreach ($responseData as $responseDataItem) {
+                    $this->assertJsonStructure($structure['*'], $responseDataItem);
+                }
+            } elseif (is_array($value)) {
+                $this->assertArrayHasKey($key, $responseData);
+                $this->assertJsonStructure($structure[$key], $responseData[$key]);
+            } else {
+                $this->assertArrayHasKey($value, $responseData);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * Get the strings we need to search for when examining the JSON.
+     *
+     * @param string $key
+     * @param string $value
+     * @return array
+     */
+    protected function jsonSearchStrings($key, $value)
+    {
+        $needle = substr(json_encode([$key => $value]), 1, -1);
+        return [
+            $needle . ']',
+            $needle . '}',
+            $needle . ',',
+        ];
     }
 }
