@@ -2,13 +2,16 @@
 
 namespace TomHart\Restful;
 
+use BadMethodCallException;
 use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -22,7 +25,7 @@ use Symfony\Component\HttpFoundation\Response as SymResponse;
 
 abstract class AbstractRestfulController extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests, ValidatesRequests;
 
 
     /**
@@ -84,6 +87,8 @@ abstract class AbstractRestfulController extends BaseController
     {
         $model = $this->findModel($id, $request);
 
+        $model = $this->iterateThroughChildren($model, $request);
+
         return $this->return($request, $model, 'show');
     }
 
@@ -123,18 +128,6 @@ abstract class AbstractRestfulController extends BaseController
     }
 
     /**
-     * Apply causes to the builder.
-     * @param Builder $builder
-     * @param string $column
-     * @param mixed $value
-     */
-    private function filterValue(Builder $builder, string $column, $value): void
-    {
-        $builder->where($column, $value);
-    }
-
-
-    /**
      * Generate a new query builder for the model.
      * @return Builder
      */
@@ -153,7 +146,57 @@ abstract class AbstractRestfulController extends BaseController
     {
         $classFQDN = $this->getModelClass();
 
-        return new $classFQDN;
+        return app($classFQDN);
+    }
+
+    /**
+     * Looks for an "extra" param in the route, and if it exists, looks for relationships
+     * based on that route.
+     * @param Model $model
+     * @param Request $request
+     * @return LengthAwarePaginator|Collection|Model|mixed
+     * @throws BadMethodCallException
+     */
+    private function iterateThroughChildren(Model $model, Request $request)
+    {
+
+        // If there's no route or extra param, just return.
+        if (!$request->route() ||
+            !($request->route() instanceof Route) ||
+            !$request->route()->parameter('extra')) {
+            return $model;
+        }
+
+        $parts = array_filter(explode('/', (string)$request->route()->parameter('extra')));
+
+        // Loop through the parts.
+        foreach ($parts as $part) {
+            // Look for an array accessor, "children[5]" for example.
+            preg_match('/\[(\d+)\]$/', $part, $matches);
+            $offset = false;
+
+            // If one was found, save the offset and remove it from $part.
+            if (!empty($matches[0])) {
+                $part = str_replace(array_shift($matches), '', $part);
+                $offset = array_shift($matches);
+            }
+
+            $model = $model->$part();
+
+            // If it's a relationship, see if it's paginate-able.
+            if (method_exists($model, 'paginate')) {
+                $model = $model->paginate();
+            } elseif ($model instanceof Relation) {
+                $model = $model->getResults();
+            }
+
+            // If there is an offset, get it.
+            if ($offset !== false) {
+                $model = $model[$offset];
+            }
+        }
+
+        return $model;
     }
 
     /**
@@ -162,7 +205,7 @@ abstract class AbstractRestfulController extends BaseController
      * @param Request|null $request
      * @return Model
      */
-    private function findModel($id, Request $request = null): Model
+    private function findModel(int $id, Request $request = null): Model
     {
         /** @var Model|Builder $class */
         $class = $this->newModelInstance();
@@ -176,11 +219,22 @@ abstract class AbstractRestfulController extends BaseController
     }
 
     /**
+     * Apply causes to the builder.
+     * @param Builder $builder
+     * @param string $column
+     * @param mixed $value
+     */
+    private function filterValue(Builder $builder, string $column, $value): void
+    {
+        $builder->where($column, $value);
+    }
+
+    /**
      * Build and return a response.
      * @param Request $request
      * @param mixed $data
      * @param string $method
-     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
+     * @return JsonResponse|ResponseFactory|Response|RedirectResponse|Redirector
      */
     private function return(Request $request, $data, string $method)
     {
@@ -210,26 +264,44 @@ abstract class AbstractRestfulController extends BaseController
             case 'update':
                 // If it's store/update, and the user isn't asking for JSON, we want to
                 // try and redirect them to the related show record page.
-                /** @var Route|null $route */
-                $route = $request->route();
-                if ($route) {
-                    $name = $route->getName();
-                    if ($name) {
-                        $exploded = explode('.', $name);
-                        array_pop($exploded);
-                        $topLevel = array_pop($exploded);
-
-                        if ($topLevel) {
-                            return redirect(route("$topLevel.show", [
-                                str_replace('-', '_', $topLevel) => $data->id
-                            ]));
-                        }
-                    }
+                if (($redirect = $this->redirectToShowRoute($request, $data))) {
+                    return $redirect;
                 }
-                break;
         }
 
         return app(ResponseFactory::class)->json($data, $status);
+    }
+
+    /**
+     * Redirects to the show route for the model if one exists.
+     * @param Request $request
+     * @param mixed $data
+     * @return RedirectResponse|Redirector|null
+     */
+    private function redirectToShowRoute(Request $request, $data)
+    {
+        /** @var Route|null $route */
+        $route = $request->route();
+        if (!$route) {
+            return null;
+        }
+
+        $name = $route->getName();
+        if (!$name) {
+            return null;
+        }
+
+        $exploded = explode('.', $name);
+        array_pop($exploded);
+        $topLevel = array_pop($exploded);
+
+        if (!$topLevel) {
+            return null;
+        }
+
+        return redirect(route("$topLevel.show", [
+            str_replace('-', '_', $topLevel) => $data->id
+        ]));
     }
 
     /**
@@ -241,14 +313,11 @@ abstract class AbstractRestfulController extends BaseController
     private function preloadRelationships(Model &$class, Request $request): void
     {
         $header = $request->headers->get('X-Load-Relationship');
-        if (!$header) {
+        if (!$header || empty($header)) {
             return;
         }
 
-        $relationships = explode(',', $header);
-        if (!$relationships) {
-            return;
-        }
+        $relationships = array_filter(explode(',', $header));
 
         $class = $class->with($relationships);
     }

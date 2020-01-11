@@ -38,6 +38,13 @@
       "TomHart\\Restful\\Tests\\": "tests"
     }
   },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "TomHart\\Restful\\RestfulServiceProvider"
+      ]
+    }
+  },
   "scripts": {
     "test": "vendor/bin/phpunit",
     "test-coverage": "vendor/bin/phpunit --coverage-clover=coverage.xml",

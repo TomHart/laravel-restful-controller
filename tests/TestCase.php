@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use TomHart\Restful\RestfulServiceProvider;
 
 abstract class TestCase extends OrchestraTestCase
 {
@@ -20,6 +21,9 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function getEnvironmentSetUp($app)
     {
+
+        $app['config']->set('app.debug', true);
+
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
@@ -34,6 +38,16 @@ abstract class TestCase extends OrchestraTestCase
     }
 
     /**
+     * Get all the providers needed for the tests.
+     * @param Application $app
+     * @return string[]
+     */
+    public function getPackageProviders($app): array
+    {
+        return [RestfulServiceProvider::class];
+    }
+
+    /**
      * Setup the test environment.
      */
     protected function setUp(): void
@@ -42,9 +56,10 @@ abstract class TestCase extends OrchestraTestCase
 
         $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
 
-        Route::resource('model-test', 'TomHart\Restful\Tests\Classes\RestfulController');
-        Route::resource('model-test2', 'TomHart\Restful\Tests\Classes\RestfulNoViewsController');
-        Route::resource('model-parent', 'TomHart\Restful\Tests\Classes\RestfulParentController');
+        Route::resource('model-test', 'TomHart\Restful\Tests\Classes\Controllers\RestfulController');
+        Route::resource('has-links-test', 'TomHart\Restful\Tests\Classes\Controllers\HasLinksController');
+        Route::resource('model-test2', 'TomHart\Restful\Tests\Classes\Controllers\RestfulNoViewsController');
+        Route::resource('model-parent', 'TomHart\Restful\Tests\Classes\Controllers\RestfulParentController');
     }
 
     /**
@@ -53,7 +68,10 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function responseIsJson(TestResponse $response): void
     {
-        $this->assertStringStartsWith('application/json', (string)$response->baseResponse->headers->get('Content-Type'));
+        $this->assertStringStartsWith(
+            'application/json',
+            (string)$response->baseResponse->headers->get('Content-Type')
+        );
     }
 
     /**
@@ -62,7 +80,10 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function responseIsHtml(TestResponse $response): void
     {
-        $this->assertStringStartsWith('text/html', (string)$response->baseResponse->headers->get('Content-Type'));
+        $this->assertStringStartsWith(
+            'text/html',
+            (string)$response->baseResponse->headers->get('Content-Type')
+        );
     }
 
     /**
