@@ -120,13 +120,13 @@ trait HasLinksTrait
 
             $createLink = LinkBuilder::buildLink($targetClass, 'create', $router);
             $storeLink = LinkBuilder::buildLink($targetClass, 'store', $router);
+            $viewLink = LinkBuilder::buildLink($this, 'show.extra', $router, $method);
 
-            if ($createLink || $storeLink) {
-                $links[$method] = [
-                    'create' => $createLink,
-                    'store' => $storeLink
-                ];
-            }
+            $links[$method] = [
+                'create' => $createLink,
+                'store' => $storeLink,
+                'view' => $viewLink
+            ];
         }
 
         return $links;

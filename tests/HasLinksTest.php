@@ -4,6 +4,7 @@ namespace TomHart\Restful\Tests;
 
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\JsonResponse;
+use ReflectionException;
 use TomHart\Restful\Tests\Classes\Models\ModelHasLinksTest;
 use TomHart\Restful\Tests\Classes\Models\ModelParentTest;
 use TomHart\Restful\Tests\Classes\Models\ModelTest;
@@ -139,13 +140,51 @@ class HasLinksTest extends TestCase
             '_links' => [
                 'relationships' => [
                     'child' => [
-                        'create', 'store'
+                        'create',
+                        'store'
                     ],
                     'children' => [
-                        'create', 'store'
+                        'create',
+                        'store'
                     ]
                 ]
             ]
         ], $data);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testRelationshipHasChildView()
+    {
+        $parent = new ModelParentTest();
+        $parent->save();
+
+        $relationshipLinks = $parent->buildRelationshipLinks();
+
+        $this->assertJsonStructure([
+            'child' => [
+                'create',
+                'store',
+                'view' => [
+                    'method',
+                    'href' => [
+                        'relative',
+                        'absolute'
+                    ]
+                ]
+            ],
+            'children' => [
+                'create',
+                'store',
+                'view' => [
+                    'method',
+                    'href' => [
+                        'relative',
+                        'absolute'
+                    ]
+                ]
+            ]
+        ], $relationshipLinks);
     }
 }
