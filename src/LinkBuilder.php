@@ -13,9 +13,10 @@ class LinkBuilder
      * @param HasLinks $model
      * @param string $routePart
      * @param Router $router
+     * @param string|null $method
      * @return mixed[]|bool
      */
-    public static function buildLink(HasLinks $model, string $routePart, Router $router)
+    public static function buildLink(HasLinks $model, string $routePart, Router $router, string $method = null)
     {
         $routeStub = $model->getRouteName();
 
@@ -41,6 +42,12 @@ class LinkBuilder
             case 'update':
             case 'show':
                 $params = [$model->getRouteKey() => $model->getAttribute((string)$model->getKeyName())];
+                break;
+            case 'show.extra':
+                $params = [
+                    $model->getRouteKey() => $model->getAttribute((string)$model->getKeyName()),
+                    'extra' => $method
+                ];
                 break;
         }
 
