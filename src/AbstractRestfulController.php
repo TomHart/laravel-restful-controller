@@ -49,7 +49,7 @@ abstract class AbstractRestfulController extends BaseController
     {
         $builder = $this->createModelQueryBuilder();
 
-        foreach ((array)$request->input() as $column => $value) {
+        foreach (collect($request->input())->except('page')->toArray() as $column => $value) {
             $this->filterValue($builder, $column, $value);
         }
 
