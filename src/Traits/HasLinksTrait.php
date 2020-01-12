@@ -65,7 +65,7 @@ trait HasLinksTrait
      */
     public function buildLinks(): array
     {
-        $routes = ['create', 'store', 'show', 'update', 'destroy'];
+        $routes = ['index', 'create', 'store', 'show', 'update', 'destroy'];
         $links = [];
 
         $router = app(Router::class);

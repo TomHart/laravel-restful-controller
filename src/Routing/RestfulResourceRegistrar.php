@@ -15,6 +15,7 @@ class RestfulResourceRegistrar extends ResourceRegistrar
         parent::__construct($router);
 
         $this->resourceDefaults[] = 'showExtra';
+        $this->resourceDefaults[] = 'options';
     }
 
     /**
@@ -35,5 +36,23 @@ class RestfulResourceRegistrar extends ResourceRegistrar
         $action['as'] .= '.extra';
 
         return $this->router->get($uri, $action)->where('extra', '.*');
+    }
+
+    /**
+     * Add the options method for a resourceful route.
+     *
+     * @param string $name
+     * @param string $base
+     * @param string $controller
+     * @param mixed[] $options
+     * @return Route
+     */
+    protected function addResourceOptions($name, $base, $controller, $options)
+    {
+        $uri = $this->getResourceUri($name);
+
+        $action = $this->getResourceAction($name, $controller, 'options', $options);
+
+        return $this->router->options($uri, $action);
     }
 }

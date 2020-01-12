@@ -1,13 +1,14 @@
 <?php
 
-namespace TomHart\Restful\Tests;
+namespace TomHart\Restful\Tests\Controller;
 
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as SymResponse;
 use TomHart\Restful\Tests\Classes\Models\ModelTest;
+use TomHart\Restful\Tests\TestCase;
 
-class RestfulControllerShowTest extends TestCase
+class ShowTest extends TestCase
 {
 
     /**

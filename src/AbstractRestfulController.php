@@ -28,7 +28,9 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Response as SymResponse;
+use TomHart\Restful\Concerns\HasLinks;
 
 abstract class AbstractRestfulController extends BaseController
 {
@@ -132,6 +134,23 @@ abstract class AbstractRestfulController extends BaseController
         $model->delete();
 
         return response(null, SymResponse::HTTP_NO_CONTENT);
+    }
+
+
+    /**
+     * Return the _links
+     * @param Request $request
+     * @return ResponseFactory|JsonResponse|RedirectResponse|Response|Redirector
+     */
+    public function options(Request $request)
+    {
+        $class = $this->newModelInstance();
+
+        if (!($class instanceof HasLinks)) {
+            throw new InvalidArgumentException('OPTIONS only works for models implementing HasLinks');
+        }
+
+        return $this->return($request, $class->buildLinks(), 'options');
     }
 
     /**
