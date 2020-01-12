@@ -58,6 +58,7 @@ abstract class TestCase extends OrchestraTestCase
         Route::resource('model-has-links-tests', 'TomHart\Restful\Tests\Classes\Controllers\HasLinksController');
         Route::resource('model-test2', 'TomHart\Restful\Tests\Classes\Controllers\RestfulNoViewsController');
         Route::resource('model-parent-tests', 'TomHart\Restful\Tests\Classes\Controllers\RestfulParentController');
+        Route::resource('model-without-links-tests', 'TomHart\Restful\Tests\Classes\Controllers\WithoutHasLinksController');
 
         Route::resource('comments', 'TomHart\Restful\Tests\Classes\Controllers\Controller');
         Route::resource('posts', 'TomHart\Restful\Tests\Classes\Controllers\PostsController');
@@ -161,6 +162,13 @@ abstract class TestCase extends OrchestraTestCase
     {
         $this->assertJsonStructure([
             '_links' => [
+                'index' => [
+                    'method',
+                    'href' => [
+                        'relative',
+                        'absolute'
+                    ]
+                ],
                 'create' => [
                     'method',
                     'href' => [

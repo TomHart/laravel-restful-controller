@@ -1,11 +1,12 @@
 <?php
 
-namespace TomHart\Restful\Tests;
+namespace TomHart\Restful\Tests\Controller;
 
 use Symfony\Component\HttpFoundation\Response as SymResponse;
 use TomHart\Restful\Tests\Classes\Models\ModelTest;
+use TomHart\Restful\Tests\TestCase;
 
-class RestfulControllerDeleteTest extends TestCase
+class DeleteTest extends TestCase
 {
 
 

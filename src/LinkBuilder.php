@@ -2,6 +2,7 @@
 
 namespace TomHart\Restful;
 
+use Illuminate\Routing\Exceptions\UrlGenerationException;
 use Illuminate\Routing\Router;
 use TomHart\Restful\Concerns\HasLinks;
 
@@ -65,12 +66,16 @@ class LinkBuilder
         }
 
         // Add!
-        return [
-            'method' => $methods,
-            'href' => [
-                'relative' => route($routeName, $params, false),
-                'absolute' => route($routeName, $params, true)
-            ]
-        ];
+        try {
+            return [
+                'method' => $methods,
+                'href' => [
+                    'relative' => route($routeName, $params, false),
+                    'absolute' => route($routeName, $params, true)
+                ]
+            ];
+        } catch (UrlGenerationException $ex) {
+            return false;
+        }
     }
 }
