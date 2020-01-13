@@ -20,6 +20,59 @@ class OptionsTest extends TestCase
         $this->assertArrayHasKey('create', $data);
         $this->assertArrayHasKey('store', $data);
     }
+    /**
+     * Test OPTIONS returns show, update, and delete if an ID is supplied.
+     */
+    public function testOptionsWithIdReturnsShowUpdateDelete(): void
+    {
+        $response = $this->options(route('model-tests.options'), ['id' => 1]);
+
+        $this->assertJsonStructure([
+            'index' => [
+                'method',
+                'href' => [
+                    'relative',
+                    'absolute'
+                ]
+            ],
+            'create' => [
+                'method',
+                'href' => [
+                    'relative',
+                    'absolute'
+                ]
+            ],
+            'store' => [
+                'method',
+                'href' => [
+                    'relative',
+                    'absolute'
+                ]
+            ],
+            'show' => [
+                'method',
+                'href' => [
+                    'relative',
+                    'absolute'
+                ]
+            ],
+            'update' => [
+                'method',
+                'href' => [
+                    'relative',
+                    'absolute'
+                ]
+            ],
+            'destroy' => [
+                'method',
+                'href' => [
+                    'relative',
+                    'absolute'
+                ]
+            ]
+
+        ], $response->json());
+    }
 
     /**
      * Test OPTIONS without HasLinks errors

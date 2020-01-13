@@ -9,6 +9,12 @@
 This library adds an `AbstractRestfulController` to to be basic heavy lifting of a CRUD controller. 
 
 
+##Installation
+You can install this package via composer using this command:
+
+`composer require "tomhart/laravel-restful-controller`
+
+
 ## Usage
 * Create a controller extending from this, and implement the method `getModelClass`
 
@@ -42,14 +48,158 @@ class BlogController extends AbstractRestfulController
         'store' => 'blog/store'
     ];
 ```
-If `$views` is empty, or the specified view doesn't exist, then JSON is returned
+If `$views` is empty, the specified view doesn't exist, or the `Accept` header is `application/json`, then JSON is returned
+
+
 * Define a resource route
 ```php
-Route::resource('blog', 'BlogController');
+Route::resource('blogs', 'BlogController');
+```
+Note this also would define a `blogs.show.extra`, and `blogs.show.options` route 
+which will be explained later.
+
+Example response for: `/blogs/1`
+```json
+{
+    "id": 1,
+    "title":  "My Blog Post",
+    "content":  "<h1>Title</h1><p>Some Content</p>"
+}
 ```
 
-### Relationships
+## Relationships
 
+### Loading Relationships
 The show route can return your models relationships. If you send a `X-Load-Relationship` header, 
 with a comma separated value list of headers to load. See the `testRelationshipsCanBeReturned` test 
 for an example.
+
+Example response for: `/blogs/1` with `X-Load-Relationship: comments`
+```json
+{
+    "id": 1,
+    "title":  "My Blog Post",
+    "content":  "<h1>Title</h1><p>Some Content</p>",
+    "comments": [
+        {
+            "id": 1,
+            "comment": "Great post!"        
+        },
+        { 
+            "id": 2,
+            "comment": "I enjoyed reading this"
+        }
+    ]  
+}
+```
+
+### Accessing Relationships
+You can drill into a relationship using the `.show.extra` route mentioned above. If the first `comment` had an author 
+and you wanted to see, via the blog resources, you can call `/blogs/1/comments[0]/author`
+```json
+{
+    "id": 1,
+    "name": "Joe Bloggs"
+}
+```
+  
+You can dynamically build the route using 
+```php
+route('blogs.show.extra', [
+    'blog' => 1,
+    'extra' => 'comments[0]/author'
+]); 
+```
+
+## Pagination
+By default the `index` route, and any relationships it's trying to load will be paginated if possible.
+
+Example response for: `/blogs`
+```json
+{
+   "total": 50,
+   "per_page": 15,
+   "current_page": 1,
+   "last_page": 4,
+   "first_page_url": "http://laravel.app?page=1",
+   "last_page_url": "http://laravel.app?page=4",
+   "next_page_url": "http://laravel.app?page=2",
+   "prev_page_url": null,
+   "path": "http://laravel.app",
+   "from": 1,
+   "to": 15,
+   "data":[
+        {
+            "id": 1
+        },
+        {
+            "id": 2
+        }
+   ]
+}
+```
+
+## Filtering
+You can filter the `index` route via a query string, e.g. `?name=test`.
+
+## HasLinks
+This library also provides `HasLinks` interface, and a `HasLinksTrait` to provide a default implementation. If you apply
+those to your models, the responses will contain a `_links` key to help your consumers navigate around and use your API.
+
+Example `_links` for `/blogs/1`:
+```json
+{  
+    "id": 1,
+    "title": "My Blog",
+    "content": "See some _links!",
+    "_links": {
+        "index": {
+            "method":  "get",
+            "href": {
+                "relative": "/blogs/",
+                "absolute": "https://api.example.com/blogs/"
+            }
+        },
+        "create": {
+            "method":  "get",
+            "href": {
+                "relative": "/blogs/",
+                "absolute": "https://api.example.com/blogs/"
+            }
+        },
+        "store": {
+            "method":  "post",
+            "href": {
+                "relative": "/blogs/",
+                "absolute": "https://api.example.com/blogs/"
+            }
+        },
+        "show": {
+            "method":  "get",
+            "href": {
+                "relative": "/blogs/1",
+                "absolute": "https://api.example.com/blogs/1"
+            }
+        },
+        "update": {
+            "method":  "put",
+            "href": {
+                "relative": "/blogs/1",
+                "absolute": "https://api.example.com/blogs/1"
+            }
+        },
+        "destroy": {
+            "method":  "delete",
+            "href": {
+                "relative": "/blogs/1",
+                "absolute": "https://api.example.com/blogs/1"
+            }
+        }
+    }
+}
+``` 
+
+The `.options` route mentioned earlier will simply return the `index`, `create`, and `store` `_links` for the resource
+so you can query the endpoint and get the URLs needing to interfacing with the API.
+
+If you send `{"id": X}`, it'll also build the `show`, `update`, and `delete` routes with the ID supplied. 

@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No Planned Updates_
 
+## [1.4.1] - 2020-01-13
+- Improved OPTIONS support
+- Improved README.md
+
 ## [1.4.0] - 2020-01-12
 ### Added
 - Support for OPTIONS, which if the model implements HasLinks will return the JSON _links
