@@ -150,6 +150,10 @@ abstract class AbstractRestfulController extends BaseController
             throw new InvalidArgumentException('OPTIONS only works for models implementing HasLinks');
         }
 
+        foreach ($request->input() as $key => $value) {
+            $class->$key = $value;
+        }
+
         return $this->return($request, $class->buildLinks(), 'options');
     }
 
