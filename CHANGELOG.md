@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 _No Planned Updates_
 
 ## [1.4.1] - 2020-01-13
+### Changed
 - Improved OPTIONS support
 - Improved README.md
 
