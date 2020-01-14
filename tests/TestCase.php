@@ -2,9 +2,12 @@
 
 namespace TomHart\Restful\Tests;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Support\Facades\Route;
+use Mockery\MockInterface;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use TomHart\Restful\RestfulServiceProvider;
 
@@ -19,20 +22,25 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function getEnvironmentSetUp($app)
     {
-
         $app['config']->set('app.debug', true);
 
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
-        $app['config']->set('database.connections.testbench', [
-            'driver' => 'sqlite',
-            'database' => ':memory:',
-            'prefix' => '',
-        ]);
+        $app['config']->set(
+            'database.connections.testbench',
+            [
+                'driver' => 'sqlite',
+                'database' => ':memory:',
+                'prefix' => '',
+            ]
+        );
 
-        $app['config']->set('view.paths', [
-            __DIR__ . '/views'
-        ]);
+        $app['config']->set(
+            'view.paths',
+            [
+                __DIR__ . '/views'
+            ]
+        );
     }
 
     /**
@@ -58,7 +66,10 @@ abstract class TestCase extends OrchestraTestCase
         Route::resource('model-has-links-tests', 'TomHart\Restful\Tests\Classes\Controllers\HasLinksController');
         Route::resource('model-test2', 'TomHart\Restful\Tests\Classes\Controllers\RestfulNoViewsController');
         Route::resource('model-parent-tests', 'TomHart\Restful\Tests\Classes\Controllers\RestfulParentController');
-        Route::resource('model-without-links-tests', 'TomHart\Restful\Tests\Classes\Controllers\WithoutHasLinksController');
+        Route::resource(
+            'model-without-links-tests',
+            'TomHart\Restful\Tests\Classes\Controllers\WithoutHasLinksController'
+        );
 
         Route::resource('comments', 'TomHart\Restful\Tests\Classes\Controllers\Controller');
         Route::resource('posts', 'TomHart\Restful\Tests\Classes\Controllers\PostsController');
@@ -97,7 +108,6 @@ abstract class TestCase extends OrchestraTestCase
      */
     public function assertJsonStructure(array $structure, array $responseData)
     {
-
         foreach ($structure as $key => $value) {
             if (is_array($value) && $key === '*') {
                 $this->assertIsArray($responseData);
@@ -137,21 +147,23 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function assertIsPagination(TestResponse $response)
     {
-
-        $this->assertJsonStructure([
-            'current_page',
-            'data',
-            'first_page_url',
-            'from',
-            'last_page',
-            'last_page_url',
-            'next_page_url',
-            'path',
-            'per_page',
-            'prev_page_url',
-            'to',
-            'total'
-        ], $response->json());
+        $this->assertJsonStructure(
+            [
+                'current_page',
+                'data',
+                'first_page_url',
+                'from',
+                'last_page',
+                'last_page_url',
+                'next_page_url',
+                'path',
+                'per_page',
+                'prev_page_url',
+                'to',
+                'total'
+            ],
+            $response->json()
+        );
     }
 
     /**
@@ -160,51 +172,183 @@ abstract class TestCase extends OrchestraTestCase
      */
     protected function assertHasLinks(TestResponse $response)
     {
-        $this->assertJsonStructure([
-            '_links' => [
-                'index' => [
-                    'method',
-                    'href' => [
-                        'relative',
-                        'absolute'
-                    ]
-                ],
-                'create' => [
-                    'method',
-                    'href' => [
-                        'relative',
-                        'absolute'
-                    ]
-                ],
-                'store' => [
-                    'method',
-                    'href' => [
-                        'relative',
-                        'absolute'
-                    ]
-                ],
-                'show' => [
-                    'method',
-                    'href' => [
-                        'relative',
-                        'absolute'
-                    ]
-                ],
-                'update' => [
-                    'method',
-                    'href' => [
-                        'relative',
-                        'absolute'
-                    ]
-                ],
-                'destroy' => [
-                    'method',
-                    'href' => [
-                        'relative',
-                        'absolute'
+        $this->assertJsonStructure(
+            [
+                '_links' => [
+                    'index' => [
+                        'method',
+                        'href' => [
+                            'relative',
+                            'absolute'
+                        ]
+                    ],
+                    'create' => [
+                        'method',
+                        'href' => [
+                            'relative',
+                            'absolute'
+                        ]
+                    ],
+                    'store' => [
+                        'method',
+                        'href' => [
+                            'relative',
+                            'absolute'
+                        ]
+                    ],
+                    'show' => [
+                        'method',
+                        'href' => [
+                            'relative',
+                            'absolute'
+                        ]
+                    ],
+                    'update' => [
+                        'method',
+                        'href' => [
+                            'relative',
+                            'absolute'
+                        ]
+                    ],
+                    'destroy' => [
+                        'method',
+                        'href' => [
+                            'relative',
+                            'absolute'
+                        ]
                     ]
                 ]
-            ]
-        ], $response->json());
+            ],
+            $response->json()
+        );
+    }
+
+    /**
+     * Mock a paginated response.
+     * @param array $responseData
+     * @param int $perPage
+     * @return MockInterface
+     */
+    protected function setPaginatedResponse(array $responseData = [], $perPage = 15): MockInterface
+    {
+        //$mock = $this->mock(Client::class);
+        $mock = $this->mock(Client::class);
+
+        $responses = [
+            $this->buildOptionsResponse()
+        ];
+        $responses = array_merge($responses, $this->buildPaginatedResponses($responseData, $perPage));
+        $mock
+            ->shouldReceive('request')
+            ->times(count($responses))
+            ->andReturn(...$responses);
+        return $mock;
+    }
+
+    /**
+     * Build some paginated responses.
+     * @param array $responseData
+     * @param int $perPage
+     * @return array
+     */
+    protected function buildPaginatedResponses(array $responseData, int $perPage)
+    {
+        $chunked = array_chunk($responseData, $perPage);
+        $responses = [];
+        foreach ($chunked as $index => $chunk) {
+            $responses[] = new Response(
+                200,
+                [],
+                json_encode(
+                    [
+                        'current_page' => ($index + 1),
+                        'data' => $chunk,
+                        'first_page_url' => '?page=1',
+                        'from' => 1 + ($perPage * $index),
+                        'last_page' => ceil(count($responseData) / $perPage),
+                        'last_page_url' => '?page=' . ceil(count($responseData) / $perPage),
+                        'next_page_url' => '?page=' . ($index + 2),
+                        'path' => '',
+                        'per_page' => $index * $perPage,
+                        'prev_page_url' => '?page=' . $index,
+                        'to' => $perPage + ($perPage * $index),
+                        'total' => count($chunked)
+                    ]
+                )
+            );
+        }
+
+        return $responses;
+    }
+
+    protected function buildOptionsResponse(): Response
+    {
+        return new Response(
+            200,
+            [],
+            json_encode(
+                [
+                    'index' => [
+                        'method' => 'get',
+                        'href' => [
+                            'relative' => '/model-tests',
+                            'absolute' => 'https://api.example.com/model-tests'
+                        ]
+                    ],
+                    'store' => [
+                        'method' => 'post',
+                        'href' => [
+                            'relative' => '/model-tests',
+                            'absolute' => 'https://api.example.com/model-tests'
+                        ]
+                    ],
+                    'update' => [
+                        'method' => 'put',
+                        'href' => [
+                            'relative' => '/model-tests/1',
+                            'absolute' => 'https://api.example.com/model-tests/1'
+                        ]
+                    ],
+                    'destroy' => [
+                        'method' => 'delete',
+                        'href' => [
+                            'relative' => '/model-tests/1',
+                            'absolute' => 'https://api.example.com/model-tests/1'
+                        ]
+                    ]
+                ]
+            )
+        );
+    }
+
+    /**
+     * @return MockInterface
+     */
+    protected function mockOptions(): MockInterface
+    {
+        $mock = $this->mock(Client::class);
+        $mock
+            ->shouldReceive('request')
+            ->once()
+            ->withSomeOfArgs('OPTIONS', '/model-tests')
+            ->andReturn(
+                new Response(
+                    200,
+                    [],
+                    json_encode(
+                        [
+                            'index' => [
+                                'method' => 'get',
+                                'href' => [
+                                    'relative' => '/model-tests',
+                                    'absolute' => 'https://api.example.com/model-tests'
+                                ]
+                            ]
+                        ]
+                    )
+                )
+            );
+
+        return $mock;
     }
 }

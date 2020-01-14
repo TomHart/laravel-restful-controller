@@ -202,4 +202,23 @@ Example `_links` for `/blogs/1`:
 The `.options` route mentioned earlier will simply return the `index`, `create`, and `store` `_links` for the resource
 so you can query the endpoint and get the URLs needing to interfacing with the API.
 
-If you send `{"id": X}`, it'll also build the `show`, `update`, and `delete` routes with the ID supplied. 
+If you send `{"id": X}`, it'll also build the `show`, `update`, and `delete` routes with the ID supplied.
+
+## Builder
+This library also includes a `Builder` class to interface with the API from a consumer view.
+It supports the standard `get`, `insert`, `update`, and `delete` methods.
+
+Example:
+```php
+use TomHart\Restful\Builder;
+
+$models = Builder::model(MyModel::class)->where('name', 'test')->get(); // Collection
+
+$modelWasInserted = Builder::model(MyModel::class)->insert(['name' => 'test']); //bool
+
+$modelWasUpdated = Builder::model(MyModel::class)->update(1, ['name' => 'test']); //bool
+
+$modelWasDeleted = Builder::model(MyModel::class)->delete(1); //bool
+``` 
+
+To use it with your model simply add `implements Restful`, and use the trait `InteractsWithRest`

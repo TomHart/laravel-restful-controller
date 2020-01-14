@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use TomHart\Restful\AbstractRestfulController;
 use TomHart\Restful\Tests\Classes\Models\ModelTest;
-use TomHart\Restful\Traits\HasLinksTrait;
 
 class UnhappyPathsTest extends TestCase
 {

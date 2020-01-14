@@ -3,7 +3,6 @@
 namespace TomHart\Restful\Tests\Classes\Controllers;
 
 use TomHart\Restful\AbstractRestfulController;
-use TomHart\Restful\Tests\Classes\Models\ModelHasLinksTest;
 use TomHart\Restful\Tests\Classes\Models\ModelWithoutLinksTest;
 
 class WithoutHasLinksController extends AbstractRestfulController
