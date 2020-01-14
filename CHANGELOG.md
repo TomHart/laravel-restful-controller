@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No Planned Updates_
 
+## [1.5.0] - 2020-01-14
+### Added
+- Added `Builder` class to interface with the API
+
 ## [1.4.1] - 2020-01-13
 ### Changed
 - Improved OPTIONS support
