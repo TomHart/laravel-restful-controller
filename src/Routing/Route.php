@@ -5,18 +5,25 @@ namespace TomHart\Restful\Routing;
 
 use TomHart\Restful\Exceptions\UndefinedIndexException;
 
-class Route
+final class Route
 {
+
+    /**
+     * @var string
+     */
     private $method;
 
+    /**
+     * @var string[]
+     */
     private $hrefs = [];
 
     /**
      * Route constructor.
-     * @param $method
-     * @param array $hrefs
+     * @param string $method
+     * @param string[] $hrefs
      */
-    public function __construct($method, array $hrefs)
+    public function __construct(string $method, array $hrefs)
     {
         $this->method = $method;
         $this->hrefs = $hrefs;
@@ -25,10 +32,10 @@ class Route
 
     /**
      * Build an instance from an array.
-     * @param $arr
+     * @param mixed[] $arr
      * @return static
      */
-    public static function fromArray($arr): self
+    public static function fromArray(array $arr): self
     {
         return new static($arr['method'], $arr['href']);
     }
@@ -44,7 +51,7 @@ class Route
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getMethod()
     {
@@ -53,8 +60,8 @@ class Route
 
     /**
      * @param string $part
-     * @param array $queryString
-     * @return array|string
+     * @param mixed[] $queryString
+     * @return string[]|string
      * @throws UndefinedIndexException
      */
     public function getHrefs(string $part = null, array $queryString = [])

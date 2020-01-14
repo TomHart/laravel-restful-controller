@@ -84,12 +84,17 @@ class Builder
      * @param null $id
      * @return Route
      * @throws Exceptions\UndefinedIndexException
+     * @throws RouteNotFoundException
      */
     private function getModelRoute(string $route, $id = null): Route
     {
         $optionsUrl = $this->model->getOptionsUrl();
         $optionRoute = new Route('OPTIONS', ['absolute' => $optionsUrl]);
         $links = $this->getResponse($optionRoute, [], ['id' => $id]);
+        if (!$links) {
+            throw new RouteNotFoundException('Cannot get options from route');
+        }
+
         $links = $this->parseJsonFromResponse($links);
         if (!isset($links[$route])) {
             throw new RouteNotFoundException("Cannot find link to $route route");
@@ -297,13 +302,13 @@ class Builder
     }
 
     /**
-     * @param $route
-     * @param $data
-     * @param $id
+     * @param string $route
+     * @param mixed[] $data
+     * @param mixed $id
      * @return bool
      * @throws Exceptions\UndefinedIndexException
      */
-    private function _call($route, $data, $id = null): bool
+    private function _call(string $route, array $data, $id = null): bool
     {
         $route = $this->getModelRoute($route, $id);
         $response = $this->getResponse($route, [], $data);
@@ -315,28 +320,28 @@ class Builder
     }
 
     /**
-     * @param $data
+     * @param mixed[] $data
      * @return bool
      * @throws Exceptions\UndefinedIndexException
      */
-    public function insert($data): bool
+    public function insert(array $data): bool
     {
         return $this->_call('store', $data);
     }
 
     /**
-     * @param $id
-     * @param $data
+     * @param mixed $id
+     * @param mixed[] $data
      * @return bool
      * @throws Exceptions\UndefinedIndexException
      */
-    public function update($id, $data): bool
+    public function update($id, array $data): bool
     {
         return $this->_call('update', $data, $id);
     }
 
     /**
-     * @param $id
+     * @param mixed $id
      * @return bool
      * @throws Exceptions\UndefinedIndexException
      */

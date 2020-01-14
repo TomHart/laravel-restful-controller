@@ -71,7 +71,6 @@ abstract class AbstractRestfulController extends BaseController
      * Handles creating a model. The C of CRUD
      * @param Request $request
      * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
-     * @method POST
      */
     public function store(Request $request)
     {
