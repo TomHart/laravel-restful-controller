@@ -231,11 +231,11 @@ abstract class AbstractRestfulController extends BaseController
 
     /**
      * Finds the model instance.
-     * @param int $id
+     * @param int|string $id
      * @param Request|null $request
      * @return Model
      */
-    protected function findModel(int $id, Request $request = null): Model
+    protected function findModel($id, Request $request = null): Model
     {
         /** @var Model|Builder $class */
         $class = $this->newModelInstance();
@@ -351,7 +351,12 @@ abstract class AbstractRestfulController extends BaseController
      */
     protected function preloadRelationships(Model &$class, Request $request): void
     {
-        $header = $request->headers->get('X-Load-Relationship');
+        $headers = $request->headers;
+        if (!$headers) {
+            return;
+        }
+
+        $header = $headers->get('X-Load-Relationship');
         if (!$header || empty($header)) {
             return;
         }

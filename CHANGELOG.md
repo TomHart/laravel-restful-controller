@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_No Planned Updates_
+### Added
+- Support for ?limit
+- `findModel` supports all types rather than just int now. 
 
 ## [1.5.0] - 2020-01-14
 ### Added
