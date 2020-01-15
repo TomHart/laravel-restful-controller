@@ -2,9 +2,15 @@
 
 namespace TomHart\Restful\Tests\Controller;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Mockery\Mock;
+use Mockery\MockInterface;
 use Symfony\Component\HttpFoundation\Response as SymResponse;
+use TomHart\Restful\AbstractRestfulController;
 use TomHart\Restful\Tests\Classes\Models\ModelTest;
 use TomHart\Restful\Tests\TestCase;
 
@@ -41,9 +47,12 @@ class IndexTest extends TestCase
         $model->save();
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-tests.index'), [
-            'Accept' => 'application/json'
-        ]);
+        $response1 = $this->get(
+            route('model-tests.index'),
+            [
+                'Accept' => 'application/json'
+            ]
+        );
 
         /** @var JsonResponse $response */
         $response = $response1->baseResponse;
@@ -90,11 +99,16 @@ class IndexTest extends TestCase
         $model->save();
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-tests.index') . '?' . http_build_query([
-                'name' => 'Test 1'
-            ]), [
-            'Accept' => 'application/json'
-        ]);
+        $response1 = $this->get(
+            route('model-tests.index') . '?' . http_build_query(
+                [
+                    'name' => 'Test 1'
+                ]
+            ),
+            [
+                'Accept' => 'application/json'
+            ]
+        );
 
         /** @var JsonResponse $response */
         $response = $response1->baseResponse;
@@ -118,9 +132,12 @@ class IndexTest extends TestCase
         }
 
         /** @var TestResponse $response1 */
-        $response1 = $this->get(route('model-tests.index'), [
-            'Accept' => 'application/json'
-        ]);
+        $response1 = $this->get(
+            route('model-tests.index'),
+            [
+                'Accept' => 'application/json'
+            ]
+        );
 
         /** @var JsonResponse $response */
         $response = $response1->baseResponse;
@@ -131,5 +148,41 @@ class IndexTest extends TestCase
         $this->assertEquals(20, $data->total);
         $this->assertEquals(15, count($data->data));
         $this->assertNotNull($data->next_page_url);
+    }
+
+    /**
+     * Test index supports limiting.
+     */
+    public function testIndexCanBeLimited(): void
+    {
+        /** @var Request|MockInterface $mockRequest */
+        $mockRequest = $this->mock(Request::class);
+        $mockRequest->shouldReceive('input')
+            ->withNoArgs()
+            ->andReturn([]);
+
+        $mockRequest->shouldReceive('input')
+            ->withArgs(['limit', null])
+            ->andReturn(1);
+
+        $mockRequest->shouldReceive('wantsJson')
+            ->andReturn(true);
+
+        /** @var Mock|AbstractRestfulController $mockController */
+        $mockController = $this
+            ->mock(AbstractRestfulController::class)
+            ->makePartial()
+            ->shouldAllowMockingProtectedMethods();
+
+        $mockBuilder = $this->mock(Builder::class);
+        $mockBuilder->shouldReceive('paginate')
+            ->withArgs([1])
+            ->andReturn(new LengthAwarePaginator([], 0, 1));
+
+        $mockController
+            ->shouldReceive('createModelQueryBuilder')
+            ->andReturn($mockBuilder);
+
+        $mockController->index($mockRequest);
     }
 }

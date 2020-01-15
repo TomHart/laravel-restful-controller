@@ -62,7 +62,7 @@ abstract class AbstractRestfulController extends BaseController
             $this->filterValue($builder, $column, $value);
         }
 
-        $data = $builder->paginate();
+        $data = $builder->paginate($request->input('limit', null));
 
         return $this->return($request, $data, 'index');
     }
@@ -161,7 +161,7 @@ abstract class AbstractRestfulController extends BaseController
      * Generate a new query builder for the model.
      * @return Builder
      */
-    private function createModelQueryBuilder(): Builder
+    protected function createModelQueryBuilder(): Builder
     {
         $class = $this->newModelInstance();
 
@@ -172,7 +172,7 @@ abstract class AbstractRestfulController extends BaseController
      * Creates a new model instance.
      * @return Model
      */
-    private function newModelInstance(): Model
+    protected function newModelInstance(): Model
     {
         $classFQDN = $this->getModelClass();
 
@@ -187,9 +187,8 @@ abstract class AbstractRestfulController extends BaseController
      * @return LengthAwarePaginator|Collection|Model|mixed
      * @throws BadMethodCallException
      */
-    private function iterateThroughChildren(Model $model, Request $request)
+    protected function iterateThroughChildren(Model $model, Request $request)
     {
-
         // If there's no route or extra param, just return.
         if (!$request->route() ||
             !($request->route() instanceof Route) ||
@@ -236,7 +235,7 @@ abstract class AbstractRestfulController extends BaseController
      * @param Request|null $request
      * @return Model
      */
-    private function findModel(int $id, Request $request = null): Model
+    protected function findModel(int $id, Request $request = null): Model
     {
         /** @var Model|Builder $class */
         $class = $this->newModelInstance();
@@ -255,7 +254,7 @@ abstract class AbstractRestfulController extends BaseController
      * @param string $column
      * @param mixed $value
      */
-    private function filterValue(Builder $builder, string $column, $value): void
+    protected function filterValue(Builder $builder, string $column, $value): void
     {
         $builder->where($column, $value);
     }
@@ -267,9 +266,8 @@ abstract class AbstractRestfulController extends BaseController
      * @param string $method
      * @return JsonResponse|ResponseFactory|Response|RedirectResponse|Redirector
      */
-    private function return(Request $request, $data, string $method)
+    protected function return(Request $request, $data, string $method)
     {
-
         $status = SymResponse::HTTP_OK;
         switch ($method) {
             case 'store':
@@ -283,9 +281,12 @@ abstract class AbstractRestfulController extends BaseController
 
         if (isset($this->views[$method]) && app(Factory::class)->exists($this->views[$method])) {
             /** @var View $view */
-            $view = view($this->views[$method], [
-                'data' => $data
-            ]);
+            $view = view(
+                $this->views[$method],
+                [
+                    'data' => $data
+                ]
+            );
 
             return response($view, $status);
         }
@@ -309,7 +310,7 @@ abstract class AbstractRestfulController extends BaseController
      * @param mixed $data
      * @return RedirectResponse|Redirector|null
      */
-    private function redirectToShowRoute(Request $request, $data)
+    protected function redirectToShowRoute(Request $request, $data)
     {
         /** @var Route|null $route */
         $route = $request->route();
@@ -332,9 +333,14 @@ abstract class AbstractRestfulController extends BaseController
 
         $key = Str::singular(str_replace('-', '_', $topLevel));
 
-        return redirect(route("$topLevel.show", [
-            $key => $data->id
-        ]));
+        return redirect(
+            route(
+                "$topLevel.show",
+                [
+                    $key => $data->id
+                ]
+            )
+        );
     }
 
     /**
@@ -343,7 +349,7 @@ abstract class AbstractRestfulController extends BaseController
      * @param Request $request
      * @return void
      */
-    private function preloadRelationships(Model &$class, Request $request): void
+    protected function preloadRelationships(Model &$class, Request $request): void
     {
         $header = $request->headers->get('X-Load-Relationship');
         if (!$header || empty($header)) {
