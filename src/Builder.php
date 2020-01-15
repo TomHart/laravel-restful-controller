@@ -3,6 +3,7 @@
 namespace TomHart\Restful;
 
 use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Grammars\Grammar;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
@@ -78,6 +79,11 @@ class Builder
         return app(static::class, ['model' => $class]);
     }
 
+    private function newModelInstance(): Model
+    {
+        return new $this->model();
+    }
+
     /**
      * Get the index route for the model via the options route.
      * @param string $route
@@ -90,7 +96,7 @@ class Builder
     {
         $optionsUrl = $this->model->getOptionsUrl();
         $optionRoute = new Route('OPTIONS', ['absolute' => $optionsUrl]);
-        $links = $this->getResponse($optionRoute, [], ['id' => $id]);
+        $links = $this->getResponse($optionRoute, ['id' => $id]);
         if (!$links) {
             throw new RouteNotFoundException('Cannot get options from route');
         }
@@ -296,9 +302,16 @@ class Builder
 
         $data = $this->extractDataFromJson($json);
 
-        $models = $this->model->hydrate($data)->all();
+        $instance = $this->newModelInstance();
 
-        return collect($models);
+        return $instance->newCollection(
+            array_map(
+                function ($item) use ($instance) {
+                    return $instance->newFromBuilder($item);
+                },
+                $data
+            )
+        );
     }
 
     /**
