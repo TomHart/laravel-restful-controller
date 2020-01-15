@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for ?limit
 - `findModel` supports all types rather than just int now.
+- Default `getRouteKey` implementation
 
 ### Changed
 - OPTIONS with ID requested via query string now when using `Builder`

@@ -28,13 +28,6 @@ trait HasLinksTrait
     abstract public function append($attributes);
 
     /**
-     * Get the value of the model's route key.
-     *
-     * @return mixed
-     */
-    abstract public function getRouteKey();
-
-    /**
      * Add the links attribute to the model.
      */
     public function initializeHasLinksTrait(): void
@@ -141,5 +134,17 @@ trait HasLinksTrait
     {
         $name = class_basename($this);
         return Str::plural(Str::kebab(Str::studly($name)));
+    }
+
+
+    /**
+     * Get the value of the model's route key.
+     *
+     * @return mixed
+     */
+    public function getRouteKey()
+    {
+        $name = class_basename($this);
+        return Str::singular(Str::snake(Str::studly($name)));
     }
 }
