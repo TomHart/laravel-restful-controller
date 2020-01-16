@@ -76,7 +76,7 @@ final class Route
                 $post = '?' . http_build_query($queryString);
             }
 
-            return $this->hrefs[$part] . $post;
+            return rtrim($this->hrefs[$part] . $post, '?');
         }
         return $this->hrefs;
     }

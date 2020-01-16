@@ -8,6 +8,7 @@ use Illuminate\Database\Query\Grammars\Grammar;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Psr\Http\Message\MessageInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use TomHart\Restful\Concerns\Restful;
@@ -56,16 +57,22 @@ class Builder
         Response::HTTP_CREATED,
         Response::HTTP_ACCEPTED
     ];
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * Builder constructor.
      * @param Client $client
+     * @param LoggerInterface $logger
      * @param Restful $model
      */
-    public function __construct(Client $client, Restful $model)
+    public function __construct(Client $client, LoggerInterface $logger, Restful $model)
     {
         $this->model = $model;
         $this->client = $client;
+        $this->logger = $logger;
     }
 
     /**
@@ -119,6 +126,12 @@ class Builder
      */
     private function getResponse(Route $route, array $queryString = [], array $postData = []): ?MessageInterface
     {
+        if ($this->shouldLog()) {
+            $this->logger->info(
+                sprintf('REST-CALL: %s to %s', $route->getMethod(), $route->getHrefs('absolute', $queryString))
+            );
+        }
+
         return $this->client->request(
             $route->getMethod(),
             $route->getHrefs('absolute', $queryString),
@@ -361,5 +374,14 @@ class Builder
     public function delete($id): bool
     {
         return $this->_call('destroy', [], $id);
+    }
+
+    /**
+     * Should we log requests?
+     * @return bool
+     */
+    private function shouldLog(): bool
+    {
+        return !!config('restful.logging', false);
     }
 }

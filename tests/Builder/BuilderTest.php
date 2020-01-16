@@ -79,6 +79,22 @@ class BuilderTest extends TestCase
     /**
      * @throws UndefinedIndexException
      */
+    public function testRouteErrors(): void
+    {
+        $this->expectException(RouteNotFoundException::class);
+        $this->expectExceptionMessage('Cannot get options from route');
+        $mock = $this->mock(Client::class);
+
+        $mock->shouldReceive('request')
+            ->withSomeOfArgs('OPTIONS')
+            ->andReturnNull();
+
+        Builder::model(ModelTest::class)->get();
+    }
+
+    /**
+     * @throws UndefinedIndexException
+     */
     public function testBuilderHandlesNoBodyBeingReturned(): void
     {
         $mock = $this->mock(Client::class);

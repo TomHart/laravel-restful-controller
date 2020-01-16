@@ -23,7 +23,7 @@ class UpdatingTest extends TestCase
         $mock->shouldReceive('request')
             ->withArgs(
                 static function ($method, $url, $params) {
-                    if ($method === 'OPTIONS' && $params['form_params'] === ['id' => 1]) {
+                    if ($method === 'OPTIONS' && Str::endsWith($url, '?id=1')) {
                         return true;
                     }
                     if ($method === 'put' &&

@@ -34,8 +34,8 @@ use TomHart\Restful\Concerns\HasLinks;
 
 abstract class AbstractRestfulController extends BaseController
 {
-    use AuthorizesRequests, ValidatesRequests;
-
+    use AuthorizesRequests;
+    use ValidatesRequests;
 
     /**
      * The views to render.
@@ -58,11 +58,16 @@ abstract class AbstractRestfulController extends BaseController
     {
         $builder = $this->createModelQueryBuilder();
 
-        foreach (collect($request->input())->except('page')->toArray() as $column => $value) {
+        $input = collect($request->input())->except(config('restful.query_string_keys.page'))->toArray();
+        foreach ($input as $column => $value) {
             $this->filterValue($builder, $column, $value);
         }
 
-        $data = $builder->paginate($request->input('limit', null));
+        $data = $builder->paginate(
+            $request->input('limit', null),
+            ['*'],
+            config('restful.query_string_keys.page')
+        );
 
         return $this->return($request, $data, 'index');
     }
@@ -81,7 +86,6 @@ abstract class AbstractRestfulController extends BaseController
         }
 
         $model->save();
-
 
         return $this->return($request, $this->findModel($model->getAttribute('id')), 'store');
     }
@@ -138,7 +142,7 @@ abstract class AbstractRestfulController extends BaseController
 
 
     /**
-     * Return the _links
+     * Return the _links. The O of CRUD.....
      * @param Request $request
      * @return ResponseFactory|JsonResponse|RedirectResponse|Response|Redirector
      */

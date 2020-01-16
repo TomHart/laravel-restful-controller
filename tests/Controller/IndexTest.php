@@ -176,7 +176,7 @@ class IndexTest extends TestCase
 
         $mockBuilder = $this->mock(Builder::class);
         $mockBuilder->shouldReceive('paginate')
-            ->withArgs([1])
+            ->withSomeOfArgs(1)
             ->andReturn(new LengthAwarePaginator([], 0, 1));
 
         $mockController
