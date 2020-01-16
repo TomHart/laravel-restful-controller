@@ -70,13 +70,13 @@ class SelectingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS', 'http://localhost/model-tests')
+            ->withSomeOfArgs('options', 'http://localhost/model-tests')
             ->andReturn($this->buildOptionsResponse());
 
         $mock
             ->shouldReceive('request')
             ->withArgs(
-                static function ($method, $url, $headers = []) {
+                static function ($method, $url) {
                     if ($method !== 'get') {
                         return false;
                     }
@@ -107,13 +107,13 @@ class SelectingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS', 'http://localhost/model-tests')
+            ->withSomeOfArgs('options', 'http://localhost/model-tests')
             ->andReturn($this->buildOptionsResponse());
 
         $mock
             ->shouldReceive('request')
             ->withArgs(
-                static function ($method, $url, $headers) {
+                static function ($method, $url) {
                     if ($method !== 'get') {
                         return false;
                     }
@@ -154,13 +154,13 @@ class SelectingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS', 'http://localhost/model-tests')
+            ->withSomeOfArgs('options', 'http://localhost/model-tests')
             ->andReturn($this->buildOptionsResponse());
 
         $mock
             ->shouldReceive('request')
             ->withArgs(
-                static function ($method, $url, $headers) {
+                static function ($method, $url) {
                     if ($method !== 'get') {
                         return false;
                     }
@@ -201,13 +201,13 @@ class SelectingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS', 'http://localhost/model-tests')
+            ->withSomeOfArgs('options', 'http://localhost/model-tests')
             ->andReturn($this->buildOptionsResponse());
 
         $mock
             ->shouldReceive('request')
             ->withArgs(
-                static function ($method, $url, $headers) {
+                static function ($method, $url) {
                     if ($method !== 'get') {
                         return false;
                     }

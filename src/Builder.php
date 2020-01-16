@@ -101,8 +101,7 @@ class Builder
      */
     private function getModelRoute(string $route, $id = null): Route
     {
-        $optionsUrl = $this->model->getOptionsUrl();
-        $optionRoute = new Route('OPTIONS', ['absolute' => $optionsUrl]);
+        $optionRoute = $this->model->getOptionsRoute();
         $links = $this->getResponse($optionRoute, ['id' => $id]);
         if (!$links) {
             throw new RouteNotFoundException('Cannot get options from route');
@@ -126,15 +125,21 @@ class Builder
      */
     private function getResponse(Route $route, array $queryString = [], array $postData = []): ?MessageInterface
     {
+        if ($domain = config('restful.api_domain')) {
+            $url = $domain . $route->getHrefs('relative', $queryString);
+        } else {
+            $url = $route->getHrefs('absolute', $queryString);
+        }
+
         if ($this->shouldLog()) {
             $this->logger->info(
-                sprintf('REST-CALL: %s to %s', $route->getMethod(), $route->getHrefs('absolute', $queryString))
+                sprintf('REST-CALL: %s to %s', $route->getMethod(), $url)
             );
         }
 
         return $this->client->request(
             $route->getMethod(),
-            $route->getHrefs('absolute', $queryString),
+            $url,
             [
                 'headers' => config('restful.headers'),
                 'form_params' => $postData

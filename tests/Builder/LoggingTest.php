@@ -30,7 +30,7 @@ class LoggingTest extends TestCase
 
         $mockLogger
             ->shouldReceive('info')
-            ->withArgs(['REST-CALL: OPTIONS to http://localhost/model-tests']);
+            ->withArgs(['REST-CALL: options to http://localhost/model-tests']);
 
         $mockLogger
             ->shouldReceive('info')

@@ -23,7 +23,7 @@ class UpdatingTest extends TestCase
         $mock->shouldReceive('request')
             ->withArgs(
                 static function ($method, $url, $params) {
-                    if ($method === 'OPTIONS' && Str::endsWith($url, '?id=1')) {
+                    if ($method === 'options' && Str::endsWith($url, '?id=1')) {
                         return true;
                     }
                     if ($method === 'put' &&
@@ -57,7 +57,7 @@ class UpdatingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')
@@ -93,7 +93,7 @@ class UpdatingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')

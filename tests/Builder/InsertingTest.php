@@ -20,12 +20,16 @@ class InsertingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')
             ->withArgs(
                 static function ($method, $url, $params) {
+                    if (empty($url)) {
+                        return false;
+                    }
+
                     if ($method !== 'post') {
                         return false;
                     }
@@ -54,7 +58,7 @@ class InsertingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')
@@ -89,7 +93,7 @@ class InsertingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')

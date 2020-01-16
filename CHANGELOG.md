@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `findModel` supports all types rather than just int now.
 - Default `getRouteKey` implementation
 - Simple file logging implementation
+- Added a `api_domain` to `restful.php` config to override the domain
 
 ### Changed
 - OPTIONS with ID requested via query string now when using `Builder`

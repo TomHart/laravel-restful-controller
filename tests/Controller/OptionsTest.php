@@ -13,7 +13,7 @@ class OptionsTest extends TestCase
      */
     public function testOptionsReturnsJSON(): void
     {
-        $response = $this->json('OPTIONS', route('model-tests.options'));
+        $response = $this->json('options', route('model-tests.options'));
 
         $data = $response->json();
         $this->assertArrayHasKey('index', $data);
@@ -79,7 +79,7 @@ class OptionsTest extends TestCase
      */
     public function testOptionsWithoutHasLinks(): void
     {
-        $response = $this->json('OPTIONS', route('model-without-links-tests.options'));
+        $response = $this->json('options', route('model-without-links-tests.options'));
         $this->assertEquals(
             'OPTIONS only works for models implementing HasLinks',
             $response->exception->getMessage()

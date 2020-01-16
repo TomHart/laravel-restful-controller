@@ -34,7 +34,7 @@ class BuilderTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')
@@ -54,7 +54,7 @@ class BuilderTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn(
                 new Response(
                     200,
@@ -86,7 +86,7 @@ class BuilderTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturnNull();
 
         Builder::model(ModelTest::class)->get();
@@ -100,7 +100,7 @@ class BuilderTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $body = $this->mock(stdClass::class);
@@ -114,6 +114,28 @@ class BuilderTest extends TestCase
         $mock->shouldReceive('request')
             ->withSomeOfArgs('get')
             ->andReturn($responseMock);
+
+        Builder::model(ModelTest::class)->get();
+    }
+
+    /**
+     * @throws UndefinedIndexException
+     */
+    public function testBuilderCanUseApiDomainFromConfig(): void
+    {
+        $mockGuzzle = $this->mock(Client::class);
+
+        $mockGuzzle
+            ->shouldReceive('request')
+            ->withSomeOfArgs('options')
+            ->andReturn($this->buildOptionsResponse());
+
+        $mockGuzzle
+            ->shouldReceive('request')
+            ->withSomeOfArgs('get', 'https://custom.domain.route:1234/model-tests')
+            ->andReturn(new Response(200, [], json_encode([])));
+
+        $this->app['config']->set('restful.api_domain', 'https://custom.domain.route:1234');
 
         Builder::model(ModelTest::class)->get();
     }

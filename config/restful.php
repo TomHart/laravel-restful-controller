@@ -78,7 +78,6 @@ return [
         'total'
     ],
 
-
     /*
      |--------------------------------------------------------------------------
      | Logging
@@ -87,5 +86,18 @@ return [
      | If required we can log the calls the Builder makes.
      |
      */
-    'logging' => true
+    'logging' => true,
+
+    /*
+     |--------------------------------------------------------------------------
+     | API Domain
+     |--------------------------------------------------------------------------
+     |
+     | By default (null) the Builder will use the absolute route returned.
+     | If for what ever reason that route isn't correct (issue-18) you
+     | can set a value here, which will be prefixed to the relative
+     | route instead of using the absolute one.
+     |
+     */
+    'api_domain' => null
 ];

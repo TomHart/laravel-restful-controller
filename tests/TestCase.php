@@ -330,7 +330,7 @@ abstract class TestCase extends OrchestraTestCase
         $mock
             ->shouldReceive('request')
             ->once()
-            ->withSomeOfArgs('OPTIONS', '/model-tests')
+            ->withSomeOfArgs('options', '/model-tests')
             ->andReturn(
                 new Response(
                     200,

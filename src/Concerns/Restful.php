@@ -2,6 +2,8 @@
 
 namespace TomHart\Restful\Concerns;
 
+use TomHart\Restful\Routing\Route;
+
 interface Restful
 {
 
@@ -13,7 +15,7 @@ interface Restful
 
     /**
      * Get the URL to get the options for this model.
-     * @return string
+     * @return Route
      */
-    public function getOptionsUrl(): string;
+    public function getOptionsRoute(): Route;
 }

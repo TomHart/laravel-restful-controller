@@ -21,12 +21,12 @@ class DeletingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')
             ->withArgs(
-                static function ($method, $url, $params) {
+                static function ($method, $url) {
                     if ($method !== 'delete') {
                         return false;
                     }
@@ -51,7 +51,7 @@ class DeletingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')
@@ -82,7 +82,7 @@ class DeletingTest extends TestCase
         $mock = $this->mock(Client::class);
 
         $mock->shouldReceive('request')
-            ->withSomeOfArgs('OPTIONS')
+            ->withSomeOfArgs('options')
             ->andReturn($this->buildOptionsResponse());
 
         $mock->shouldReceive('request')
