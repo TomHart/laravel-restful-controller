@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - OPTIONS with ID requested via query string now when using `Builder`
+- Made CRUD methods manipulatable by concrete classes
 
 ## [1.5.0] - 2020-01-14
 ### Added

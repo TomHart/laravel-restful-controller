@@ -52,15 +52,22 @@ abstract class AbstractRestfulController extends BaseController
     /**
      * Return a list of matching models.
      * @param Request $request
+     * @param callable|null $callback
      * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
-    public function index(Request $request)
+    public function index(Request $request, ?callable $callback = null)
     {
         $builder = $this->createModelQueryBuilder();
 
         $input = collect($request->input())->except(config('restful.query_string_keys.page'))->toArray();
         foreach ($input as $column => $value) {
             $this->filterValue($builder, $column, $value);
+        }
+
+        // A callback can be used to manipulate
+        // the pagination by a parent class.
+        if ($callback) {
+            $callback($builder);
         }
 
         $data = $builder->paginate(
@@ -75,14 +82,22 @@ abstract class AbstractRestfulController extends BaseController
     /**
      * Handles creating a model. The C of CRUD
      * @param Request $request
+     * @param callable|null $callback
      * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
-    public function store(Request $request)
+    public function store(Request $request, ?callable $callback = null)
     {
         $model = $this->newModelInstance();
 
         foreach ((array)$request->input() as $column => $value) {
             $model->$column = $value;
+        }
+
+        // A callback can be used to manipulate
+        // the model before it's saved by
+        // a parent class.
+        if ($callback) {
+            $callback($model);
         }
 
         $model->save();
@@ -109,14 +124,22 @@ abstract class AbstractRestfulController extends BaseController
      * Update a record. The U of CRUD.
      * @param Request $request
      * @param int $id
+     * @param callable|null $callback
      * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, ?callable $callback = null)
     {
         $model = $this->findModel($id);
 
         foreach ((array)$request->input() as $column => $value) {
             $model->$column = $value;
+        }
+
+        // A callback can be used to manipulate
+        // the model before it's updated by
+        // a parent class.
+        if ($callback) {
+            $callback($model);
         }
 
         $model->save();
@@ -128,12 +151,22 @@ abstract class AbstractRestfulController extends BaseController
      * Destroy a model. The D of CRUD.
      * @param Request $request
      * @param int $id
+     * @param $
+     * @param callable|null $callback
      * @return ResponseFactory|Response
      * @throws Exception
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, $id, ?callable $callback = null)
     {
         $model = $this->findModel($id);
+
+
+        // A callback can be used to manipulate
+        // the model before it's deleted by
+        // a parent class.
+        if ($callback) {
+            $callback($model);
+        }
 
         $model->delete();
 
@@ -170,6 +203,15 @@ abstract class AbstractRestfulController extends BaseController
         $class = $this->newModelInstance();
 
         return $class->newQuery();
+    }
+
+    /**
+     * Generate a new query builder for the model to be used in the index route.
+     * @return Builder
+     */
+    protected function createIndexQueryBuilder(): Builder
+    {
+        return $this->createModelQueryBuilder();
     }
 
     /**
