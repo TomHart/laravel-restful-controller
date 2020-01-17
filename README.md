@@ -9,10 +9,26 @@
 This library adds an `AbstractRestfulController` to to be basic heavy lifting of a CRUD controller. 
 
 
+* [Installation](#installation)
+* [Usage](#usage)
+  * [Relationships](#relationships)
+    * [Loading Relationships](#loading-relationships)
+    * [Accessing Relationships](#accessing-relationships)
+  * [Restricting Access to Models](#restricting-access-to-models)
+    * [Index page](#index-page)
+    * [Show, Update, and Destroy Pages](#show-update-and-destroy-pages)
+  * [Manipulating models before saving or updating](#manipulating-models-before-saving-or-updating)
+  * [Pagination](#pagination)
+  * [Filtering](#filtering) 
+  * [HasLinks](#haslinks)
+  * [Builder](#builder)
+
+
+
 ##Installation
 You can install this package via composer using this command:
 
-`composer require "tomhart/laravel-restful-controller`
+`composer require tomhart/laravel-restful-controller`
 
 
 ## Usage
@@ -67,9 +83,9 @@ Example response for: `/blogs/1`
 }
 ```
 
-## Relationships
+### Relationships
 
-### Loading Relationships
+#### Loading Relationships
 The show route can return your models relationships. If you send a `X-Load-Relationship` header, 
 with a comma separated value list of headers to load. See the `testRelationshipsCanBeReturned` test 
 for an example.
@@ -93,7 +109,7 @@ Example response for: `/blogs/1` with `X-Load-Relationship: comments`
 }
 ```
 
-### Accessing Relationships
+#### Accessing Relationships
 You can drill into a relationship using the `.show.extra` route mentioned above. If the first `comment` had an author 
 and you wanted to see, via the blog resources, you can call `/blogs/1/comments[0]/author`
 ```json
@@ -111,7 +127,24 @@ route('blogs.show.extra', [
 ]); 
 ```
 
-## Pagination
+### Restricting Access to Models
+You'll most likely want to restrict access to certain models, e.g. only load the logged in
+users posts. To do that, there's a few methods you can overwrite.
+
+#### Index Page
+In order to restrict the models returned by the index route, e.g. a paginated list of many models,
+overwrite the `createModelQueryBuilder` method.
+
+#### Show, Update, and Destroy Pages
+In order to restrict which indiviual models can be shown, updated, or deleted, overwrite the
+`findModel` method.
+
+### Manipulating models before saving or updating
+If you want to manipulate the model before they are saved, or updated, e.g. setting the user_id
+to the current logged in user, override the `saveModel` method.
+
+
+### Pagination
 By default the `index` route, and any relationships it's trying to load will be paginated if possible.
 
 Example response for: `/blogs`
@@ -139,10 +172,10 @@ Example response for: `/blogs`
 }
 ```
 
-## Filtering
+### Filtering
 You can filter the `index` route via a query string, e.g. `?name=test`.
 
-## HasLinks
+### HasLinks
 This library also provides `HasLinks` interface, and a `HasLinksTrait` to provide a default implementation. If you apply
 those to your models, the responses will contain a `_links` key to help your consumers navigate around and use your API.
 
@@ -204,7 +237,7 @@ so you can query the endpoint and get the URLs needing to interfacing with the A
 
 If you send `{"id": X}`, it'll also build the `show`, `update`, and `delete` routes with the ID supplied.
 
-## Builder
+### Builder
 This library also includes a `Builder` class to interface with the API from a consumer view.
 It supports the standard `get`, `insert`, `update`, and `delete` methods.
 

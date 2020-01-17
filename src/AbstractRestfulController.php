@@ -82,10 +82,9 @@ abstract class AbstractRestfulController extends BaseController
     /**
      * Handles creating a model. The C of CRUD
      * @param Request $request
-     * @param callable|null $callback
      * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
-    public function store(Request $request, ?callable $callback = null)
+    public function store(Request $request)
     {
         $model = $this->newModelInstance();
 
@@ -93,14 +92,7 @@ abstract class AbstractRestfulController extends BaseController
             $model->$column = $value;
         }
 
-        // A callback can be used to manipulate
-        // the model before it's saved by
-        // a parent class.
-        if ($callback) {
-            $callback($model);
-        }
-
-        $model->save();
+        $this->saveModel($model);
 
         return $this->return($request, $this->findModel($model->getAttribute('id')), 'store');
     }
@@ -124,10 +116,9 @@ abstract class AbstractRestfulController extends BaseController
      * Update a record. The U of CRUD.
      * @param Request $request
      * @param int $id
-     * @param callable|null $callback
      * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
-    public function update(Request $request, $id, ?callable $callback = null)
+    public function update(Request $request, $id)
     {
         $model = $this->findModel($id);
 
@@ -135,14 +126,7 @@ abstract class AbstractRestfulController extends BaseController
             $model->$column = $value;
         }
 
-        // A callback can be used to manipulate
-        // the model before it's updated by
-        // a parent class.
-        if ($callback) {
-            $callback($model);
-        }
-
-        $model->save();
+        $this->saveModel($model);
 
         return $this->return($request, $model, 'update');
     }
@@ -151,22 +135,12 @@ abstract class AbstractRestfulController extends BaseController
      * Destroy a model. The D of CRUD.
      * @param Request $request
      * @param int $id
-     * @param $
-     * @param callable|null $callback
      * @return ResponseFactory|Response
      * @throws Exception
      */
-    public function destroy(Request $request, $id, ?callable $callback = null)
+    public function destroy(Request $request, $id)
     {
         $model = $this->findModel($id);
-
-
-        // A callback can be used to manipulate
-        // the model before it's deleted by
-        // a parent class.
-        if ($callback) {
-            $callback($model);
-        }
 
         $model->delete();
 
@@ -203,15 +177,6 @@ abstract class AbstractRestfulController extends BaseController
         $class = $this->newModelInstance();
 
         return $class->newQuery();
-    }
-
-    /**
-     * Generate a new query builder for the model to be used in the index route.
-     * @return Builder
-     */
-    protected function createIndexQueryBuilder(): Builder
-    {
-        return $this->createModelQueryBuilder();
     }
 
     /**
@@ -410,5 +375,15 @@ abstract class AbstractRestfulController extends BaseController
         $relationships = array_filter(explode(',', $header));
 
         $class = $class->with($relationships);
+    }
+
+    /**
+     * Save a model, either from a store or an update.
+     * @param Model $model
+     * @return bool
+     */
+    private function saveModel(Model $model)
+    {
+        return $model->save();
     }
 }
