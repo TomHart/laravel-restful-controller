@@ -2,6 +2,9 @@
 
 namespace TomHart\Restful;
 
+use DebugBar\DataCollector\MessagesCollector;
+use DebugBar\DebugBar;
+use DebugBar\DebugBarException;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Grammars\Grammar;
@@ -86,6 +89,10 @@ class Builder
         return app(static::class, ['model' => $class]);
     }
 
+    /**
+     * Returns a new instance of the model
+     * @return Model
+     */
     private function newModelInstance(): Model
     {
         return new $this->model();
@@ -132,9 +139,16 @@ class Builder
         }
 
         if ($this->shouldLog()) {
-            $this->logger->info(
-                sprintf('REST-CALL: %s to %s', $route->getMethod(), $url)
-            );
+            $this->logger->info(sprintf('REST-CALL: %s to %s', $route->getMethod(), $url));
+
+            /** @var DebugBar $debugBar */
+            $debugBar = app('debugbar');
+            try {
+                /** @var MessagesCollector $collector */
+                $collector = $debugBar->getCollector('restful_calls');
+                $collector->addMessage(sprintf('REST-CALL: %s to %s', $route->getMethod(), $url));
+            } catch (DebugBarException $e) {
+            }
         }
 
         return $this->client->request(

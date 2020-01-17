@@ -2,6 +2,7 @@
 
 namespace TomHart\Restful;
 
+use DebugBar\DataCollector\MessagesCollector;
 use Illuminate\Routing\ResourceRegistrar;
 use Illuminate\Support\ServiceProvider;
 use TomHart\Restful\Concerns\Transformer;
@@ -16,9 +17,12 @@ class RestfulServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->publishes([
-            __DIR__ . '/../config/restful.php' => config_path('restful.php'),
-        ], 'config');
+        $this->publishes(
+            [
+                __DIR__ . '/../config/restful.php' => config_path('restful.php'),
+            ],
+            'config'
+        );
     }
 
     /**
@@ -34,5 +38,8 @@ class RestfulServiceProvider extends ServiceProvider
         $this->app->bind(Transformer::class, DefaultTransformer::class);
 
         $this->mergeConfigFrom(__DIR__ . '/../config/restful.php', 'restful');
+
+        $debugBar = app('debugbar');
+        $debugBar->addCollector(new MessagesCollector('restful_calls'));
     }
 }

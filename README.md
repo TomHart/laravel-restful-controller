@@ -5,9 +5,7 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/TomHart/laravel-restful-controller?color=green)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-
 This library adds an `AbstractRestfulController` to to be basic heavy lifting of a CRUD controller. 
-
 
 * [Installation](#installation)
 * [Usage](#usage)
@@ -23,13 +21,10 @@ This library adds an `AbstractRestfulController` to to be basic heavy lifting of
   * [HasLinks](#haslinks)
   * [Builder](#builder)
 
-
-
-##Installation
+## Installation
 You can install this package via composer using this command:
 
 `composer require tomhart/laravel-restful-controller`
-
 
 ## Usage
 * Create a controller extending from this, and implement the method `getModelClass`
