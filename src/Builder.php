@@ -6,6 +6,7 @@ use DebugBar\DataCollector\MessagesCollector;
 use DebugBar\DebugBar;
 use DebugBar\DebugBarException;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Grammars\Grammar;
 use Illuminate\Support\Collection;
@@ -141,13 +142,14 @@ class Builder
         if ($this->shouldLog()) {
             $this->logger->info(sprintf('REST-CALL: %s to %s', $route->getMethod(), $url));
 
-            /** @var DebugBar $debugBar */
-            $debugBar = app('debugbar');
             try {
+                /** @var DebugBar $debugBar */
+                $debugBar = app('debugbar');
+
                 /** @var MessagesCollector $collector */
                 $collector = $debugBar->getCollector('restful_calls');
                 $collector->addMessage(sprintf('REST-CALL: %s to %s', $route->getMethod(), $url));
-            } catch (DebugBarException $e) {
+            } catch (DebugBarException|BindingResolutionException $e) {
             }
         }
 
