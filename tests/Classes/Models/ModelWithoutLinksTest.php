@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 class ModelWithoutLinksTest extends Model
 {
 
+    protected $table = 'model_tests';
+
     public function getRouteKey()
     {
         return 'model_test';

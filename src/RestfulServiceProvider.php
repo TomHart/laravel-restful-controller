@@ -5,7 +5,6 @@ namespace TomHart\Restful;
 use DebugBar\DataCollector\MessagesCollector;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Routing\ResourceRegistrar;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use TomHart\Restful\Concerns\Transformer;
 use TomHart\Restful\Routing\RestfulResourceRegistrar;

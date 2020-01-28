@@ -4,7 +4,7 @@
 namespace TomHart\Restful\Tests\Classes\Controllers;
 
 use TomHart\Restful\AbstractRestfulController;
-use TomHart\Restful\Tests\Classes\Models\ModelTest;
+use TomHart\Restful\Tests\Classes\Models\ModelTest2;
 
 class RestfulNoViewsController extends AbstractRestfulController
 {
@@ -15,6 +15,6 @@ class RestfulNoViewsController extends AbstractRestfulController
      */
     protected function getModelClass(): string
     {
-        return ModelTest::class;
+        return ModelTest2::class;
     }
 }

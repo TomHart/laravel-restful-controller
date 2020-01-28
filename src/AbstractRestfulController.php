@@ -52,22 +52,15 @@ abstract class AbstractRestfulController extends BaseController
     /**
      * Return a list of matching models.
      * @param Request $request
-     * @param callable|null $callback
      * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
-    public function index(Request $request, ?callable $callback = null)
+    public function index(Request $request)
     {
         $builder = $this->createModelQueryBuilder();
 
         $input = collect($request->input())->except(config('restful.query_string_keys.page'))->toArray();
         foreach ($input as $column => $value) {
             $this->filterValue($builder, $column, $value);
-        }
-
-        // A callback can be used to manipulate
-        // the pagination by a parent class.
-        if ($callback) {
-            $callback($builder);
         }
 
         $data = $builder->paginate(
@@ -323,6 +316,20 @@ abstract class AbstractRestfulController extends BaseController
      */
     protected function redirectToShowRoute(Request $request, $data)
     {
+        if ($data instanceof HasLinks) {
+            $route = $data->getRouteName() . '.show';
+            $key = $data->getRouteKey();
+
+            return redirect(
+                route(
+                    $route,
+                    [
+                        $key => $data->id
+                    ]
+                )
+            );
+        }
+
         /** @var Route|null $route */
         $route = $request->route();
         if (!$route) {

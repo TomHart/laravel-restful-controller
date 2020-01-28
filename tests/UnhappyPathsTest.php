@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use TomHart\Restful\AbstractRestfulController;
 use TomHart\Restful\Tests\Classes\Models\ModelTest;
+use TomHart\Restful\Tests\Classes\Models\ModelWithoutLinksTest;
 
 class UnhappyPathsTest extends TestCase
 {
@@ -16,7 +17,7 @@ class UnhappyPathsTest extends TestCase
     public function testNoRouteFromRequest(): void
     {
         $controller = $this->getMockForAbstractClass(AbstractRestfulController::class);
-        $controller->method('getModelClass')->willReturn(ModelTest::class);
+        $controller->method('getModelClass')->willReturn(ModelWithoutLinksTest::class);
 
         $request = new Request([], [
             'name' => 'Test'
@@ -35,7 +36,7 @@ class UnhappyPathsTest extends TestCase
     public function testNoRouteNameFromRoute(): void
     {
         $controller = $this->getMockForAbstractClass(AbstractRestfulController::class);
-        $controller->method('getModelClass')->willReturn(ModelTest::class);
+        $controller->method('getModelClass')->willReturn(ModelWithoutLinksTest::class);
 
         $request = new Request([], [
             'name' => 'Test'
@@ -60,7 +61,7 @@ class UnhappyPathsTest extends TestCase
     public function testSingleLevelRouteName(): void
     {
         $controller = $this->getMockForAbstractClass(AbstractRestfulController::class);
-        $controller->method('getModelClass')->willReturn(ModelTest::class);
+        $controller->method('getModelClass')->willReturn(ModelWithoutLinksTest::class);
 
         $request = new Request([], [
             'name' => 'Test'
