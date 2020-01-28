@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No Planned Releases_
 
+## [1.6.3] - 2020-01-28
+### Changed
+- Improved redirect logic
+
+## [1.6.2] - 2020-01-18
+### Fixed
+- Fixed BindingResolutionError
+
 ## [1.6.1] - 2020-01-17
 ### Added
 - Possible support for [DebugBar](https://github.com/barryvdh/laravel-debugbar)
