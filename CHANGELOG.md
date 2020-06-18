@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No Planned Releases_
 
+## [1.6.4] - 2020-06-18
+### Changed
+- Support new laravel versions
+
 ## [1.6.3] - 2020-01-28
 ### Changed
 - Improved redirect logic
