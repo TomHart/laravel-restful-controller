@@ -2,8 +2,8 @@
 
 namespace TomHart\Restful\Tests;
 
-use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Testing\TestResponse;
 use TomHart\Restful\Tests\Classes\Models\ModelParentTest;
 use TomHart\Restful\Tests\Classes\Models\ModelTest;
 
@@ -46,7 +46,6 @@ class AccessingChildrenTest extends TestCase
         $this->assertArrayHasKey('data', $data);
         $this->assertCount(2, $data['data']);
 
-        /** @var TestResponse $response1 */
         $response1 = $this->get(route('model-parent-tests.show.extra', [
             'model_parent_test' => $parent->id,
             'extra' => 'children[1]'
@@ -80,7 +79,6 @@ class AccessingChildrenTest extends TestCase
         $parent->child()->associate($child1);
         $parent->save();
 
-        /** @var TestResponse $response1 */
         $response1 = $this->get(route('model-parent-tests.show.extra', [
             'model_parent_test' => $parent->id,
             'extra' => 'child'
@@ -106,7 +104,6 @@ class AccessingChildrenTest extends TestCase
         $parent->name = 'Parent';
         $parent->save();
 
-        /** @var TestResponse $response1 */
         $response1 = $this->get(route('model-parent-tests.show.extra', [
             'model_parent_test' => $parent->id,
             'extra' => 'name'

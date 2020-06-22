@@ -2,7 +2,7 @@
 
 namespace TomHart\Restful\Tests;
 
-use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Testing\TestResponse;
 use Illuminate\Http\JsonResponse;
 use ReflectionException;
 use TomHart\Restful\Tests\Classes\Models\ModelHasLinksTest;
@@ -66,7 +66,6 @@ class HasLinksTest extends TestCase
         $parent->name = 'Parent';
         $parent->save();
 
-        /** @var TestResponse $response1 */
         $response1 = $this->get(route('model-parent-tests.show', [
             'model_parent_test' => $parent->id
         ]), [

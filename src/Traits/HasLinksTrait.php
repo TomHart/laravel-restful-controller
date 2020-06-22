@@ -20,20 +20,20 @@ trait HasLinksTrait
 {
 
     /**
-     * Append attributes to query when building a query.
-     *
-     * @param string[]|string $attributes
-     * @return $this
-     */
-    abstract public function append($attributes);
-
-    /**
      * Add the links attribute to the model.
      */
     public function initializeHasLinksTrait(): void
     {
         $this->append('_links');
     }
+
+    /**
+     * Append attributes to query when building a query.
+     *
+     * @param string[]|string $attributes
+     * @return $this
+     */
+    abstract public function append($attributes);
 
     /**
      * Get the links for this model.
@@ -90,11 +90,13 @@ trait HasLinksTrait
 
         foreach ($methods as $method) {
             $method2 = new ReflectionMethod($this, $method);
-            $return = (string)$method2->getReturnType();
+            $return = $method2->getReturnType();
 
             if (empty($return)) {
                 continue;
             }
+
+            $return = (PHP_VERSION_ID <= 70100 ? $return->__toString() : $return->getName());
 
             $isRelationship = is_subclass_of($return, Relation::class);
 

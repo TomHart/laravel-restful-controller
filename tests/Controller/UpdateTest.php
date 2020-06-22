@@ -68,6 +68,4 @@ class UpdateTest extends TestCase
 
         $this->assertEquals(route('model-tests.show', ['model_test' => 1]), $response->headers->get('location'));
     }
-
-
 }

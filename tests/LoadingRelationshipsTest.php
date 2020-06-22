@@ -46,5 +46,4 @@ class LoadingRelationshipsTest extends TestCase
         $this->assertCount(1, $data['children']);
         $this->assertEquals($parent->id, $data['id']);
     }
-
 }

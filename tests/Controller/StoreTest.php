@@ -2,7 +2,6 @@
 
 namespace TomHart\Restful\Tests\Controller;
 
-
 use Illuminate\Foundation\Testing\TestResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -73,6 +72,4 @@ class StoreTest extends TestCase
 
         $this->assertEquals(route('model-test2.show', ['model_test2' => 1]), $response->headers->get('location'));
     }
-
-
 }
