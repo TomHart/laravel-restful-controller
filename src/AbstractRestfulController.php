@@ -44,12 +44,6 @@ abstract class AbstractRestfulController extends BaseController
     protected $views = [];
 
     /**
-     * What Model class to search for entities.
-     * @return string
-     */
-    abstract protected function getModelClass(): string;
-
-    /**
      * Return a list of matching models.
      * @param Request $request
      * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
@@ -73,103 +67,12 @@ abstract class AbstractRestfulController extends BaseController
     }
 
     /**
-     * Handles creating a model. The C of CRUD
-     * @param Request $request
-     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
-     */
-    public function store(Request $request)
-    {
-        $model = $this->newModelInstance();
-
-        foreach ((array)$request->input() as $column => $value) {
-            $model->$column = $value;
-        }
-
-        $this->saveModel($model);
-
-        return $this->return($request, $this->findModel($model->getAttribute('id')), 'store');
-    }
-
-    /**
-     * Shows a model. The R of CRUD.
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
-     */
-    public function show(Request $request, $id)
-    {
-        $model = $this->findModel($id, $request);
-
-        $model = $this->iterateThroughChildren($model, $request);
-
-        return $this->return($request, $model, 'show');
-    }
-
-    /**
-     * Update a record. The U of CRUD.
-     * @param Request $request
-     * @param int $id
-     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
-     */
-    public function update(Request $request, $id)
-    {
-        $model = $this->findModel($id);
-
-        foreach ((array)$request->input() as $column => $value) {
-            $model->$column = $value;
-        }
-
-        $this->saveModel($model);
-
-        return $this->return($request, $model, 'update');
-    }
-
-    /**
-     * Destroy a model. The D of CRUD.
-     * @param Request $request
-     * @param int $id
-     * @return ResponseFactory|Response
-     * @throws Exception
-     */
-    public function destroy(Request $request, $id)
-    {
-        $model = $this->findModel($id);
-
-        $model->delete();
-
-        return response(null, SymResponse::HTTP_NO_CONTENT);
-    }
-
-
-    /**
-     * Return the _links. The O of CRUD.....
-     * @param Request $request
-     * @return ResponseFactory|JsonResponse|RedirectResponse|Response|Redirector
-     */
-    public function options(Request $request)
-    {
-        $class = $this->newModelInstance();
-
-        if (!($class instanceof HasLinks)) {
-            throw new InvalidArgumentException('OPTIONS only works for models implementing HasLinks');
-        }
-
-        foreach ($request->input() as $key => $value) {
-            $class->$key = $value;
-        }
-
-        return $this->return($request, $class->buildLinks(), 'options');
-    }
-
-    /**
      * Generate a new query builder for the model.
      * @return Builder
      */
     protected function createModelQueryBuilder(): Builder
     {
-        $class = $this->newModelInstance();
-
-        return $class->newQuery();
+        return $this->newModelInstance()->newQuery();
     }
 
     /**
@@ -184,73 +87,10 @@ abstract class AbstractRestfulController extends BaseController
     }
 
     /**
-     * Looks for an "extra" param in the route, and if it exists, looks for relationships
-     * based on that route.
-     * @param Model $model
-     * @param Request $request
-     * @return LengthAwarePaginator|Collection|Model|mixed
-     * @throws BadMethodCallException
+     * What Model class to search for entities.
+     * @return string
      */
-    protected function iterateThroughChildren(Model $model, Request $request)
-    {
-        // If there's no route or extra param, just return.
-        if (!$request->route() ||
-            !($request->route() instanceof Route) ||
-            !$request->route()->parameter('extra')) {
-            return $model;
-        }
-
-        $parts = array_filter(explode('/', (string)$request->route()->parameter('extra')));
-
-        // Loop through the parts.
-        foreach ($parts as $part) {
-            // Look for an array accessor, "children[5]" for example.
-            preg_match('/\[(\d+)]$/', $part, $matches);
-            $offset = false;
-
-            // If one was found, save the offset and remove it from $part.
-            if (!empty($matches[0])) {
-                $part = str_replace(array_shift($matches), '', $part);
-                $offset = array_shift($matches);
-            }
-
-            $model = $model->$part();
-
-            // If it's a relationship, see if it's paginate-able.
-            if (stripos(get_class($model), 'Many') !== false) {
-                /** @var BelongsToMany|HasMany|HasOneOrMany|MorphMany|MorphOneOrMany|MorphToMany $model */
-                $model = $model->paginate();
-            } elseif ($model instanceof Relation) {
-                $model = $model->getResults();
-            }
-
-            // If there is an offset, get it.
-            if ($offset !== false) {
-                $model = $model[$offset];
-            }
-        }
-
-        return $model;
-    }
-
-    /**
-     * Finds the model instance.
-     * @param int|string $id
-     * @param Request|null $request
-     * @return Model
-     */
-    protected function findModel($id, Request $request = null): Model
-    {
-        /** @var Model|Builder $class */
-        $class = $this->newModelInstance();
-
-        if ($request) {
-            $this->preloadRelationships($class, $request);
-        }
-
-        $class = $class->findOrFail($id);
-        return $class;
-    }
+    abstract protected function getModelClass(): string;
 
     /**
      * Apply causes to the builder.
@@ -362,12 +202,59 @@ abstract class AbstractRestfulController extends BaseController
     }
 
     /**
+     * Handles creating a model. The C of CRUD
+     * @param Request $request
+     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
+     */
+    public function store(Request $request)
+    {
+        $model = $this->newModelInstance();
+
+        foreach ((array)$request->input() as $column => $value) {
+            $model->$column = $value;
+        }
+
+        $this->saveModel($model);
+
+        return $this->return($request, $this->findModel($model->getAttribute('id')), 'store');
+    }
+
+    /**
+     * Save a model, either from a store or an update.
+     * @param Model $model
+     * @return bool
+     */
+    protected function saveModel(Model $model)
+    {
+        return $model->save();
+    }
+
+    /**
+     * Finds the model instance.
+     * @param int|string $id
+     * @param Request|null $request
+     * @return Model
+     */
+    protected function findModel($id, Request $request = null): Model
+    {
+        $builder = $this->createModelQueryBuilder();
+
+        if ($request) {
+            $this->preloadRelationships($builder, $request);
+        }
+
+
+        $builder = $builder->findOrFail($id);
+        return $builder;
+    }
+
+    /**
      * Preload any relationships required.
-     * @param Model $class
+     * @param Builder $builder
      * @param Request $request
      * @return void
      */
-    protected function preloadRelationships(Model &$class, Request $request): void
+    protected function preloadRelationships(Builder &$builder, Request $request): void
     {
         $headers = $request->headers;
         if (!$headers) {
@@ -381,16 +268,126 @@ abstract class AbstractRestfulController extends BaseController
 
         $relationships = array_filter(explode(',', $header));
 
-        $class = $class->with($relationships);
+        $builder = $builder->with($relationships);
     }
 
     /**
-     * Save a model, either from a store or an update.
-     * @param Model $model
-     * @return bool
+     * Shows a model. The R of CRUD.
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
      */
-    private function saveModel(Model $model)
+    public function show(Request $request, $id)
     {
-        return $model->save();
+        $model = $this->findModel($id, $request);
+
+        $model = $this->iterateThroughChildren($model, $request);
+
+        return $this->return($request, $model, 'show');
+    }
+
+    /**
+     * Looks for an "extra" param in the route, and if it exists, looks for relationships
+     * based on that route.
+     * @param Model $model
+     * @param Request $request
+     * @return LengthAwarePaginator|Collection|Model|mixed
+     * @throws BadMethodCallException
+     */
+    protected function iterateThroughChildren(Model $model, Request $request)
+    {
+        // If there's no route or extra param, just return.
+        if (!$request->route() ||
+            !($request->route() instanceof Route) ||
+            !$request->route()->parameter('extra')) {
+            return $model;
+        }
+
+        $parts = array_filter(explode('/', (string)$request->route()->parameter('extra')));
+
+        // Loop through the parts.
+        foreach ($parts as $part) {
+            // Look for an array accessor, "children[5]" for example.
+            preg_match('/\[(\d+)]$/', $part, $matches);
+            $offset = false;
+
+            // If one was found, save the offset and remove it from $part.
+            if (!empty($matches[0])) {
+                $part = str_replace(array_shift($matches), '', $part);
+                $offset = array_shift($matches);
+            }
+
+            $model = $model->$part();
+
+            // If it's a relationship, see if it's paginate-able.
+            if (stripos(get_class($model), 'Many') !== false) {
+                /** @var BelongsToMany|HasMany|HasOneOrMany|MorphMany|MorphOneOrMany|MorphToMany $model */
+                $model = $model->paginate();
+            } elseif ($model instanceof Relation) {
+                $model = $model->getResults();
+            }
+
+            // If there is an offset, get it.
+            if ($offset !== false) {
+                $model = $model[$offset];
+            }
+        }
+
+        return $model;
+    }
+
+    /**
+     * Update a record. The U of CRUD.
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse|RedirectResponse|ResponseFactory|Response|Redirector
+     */
+    public function update(Request $request, $id)
+    {
+        $model = $this->findModel($id);
+
+        foreach ((array)$request->input() as $column => $value) {
+            $model->$column = $value;
+        }
+
+        $this->saveModel($model);
+
+        return $this->return($request, $model, 'update');
+    }
+
+    /**
+     * Destroy a model. The D of CRUD.
+     * @param Request $request
+     * @param int $id
+     * @return ResponseFactory|Response
+     * @throws Exception
+     */
+    public function destroy(Request $request, $id)
+    {
+        $model = $this->findModel($id);
+
+        $model->delete();
+
+        return response(null, SymResponse::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Return the _links. The O of CRUD.....
+     * @param Request $request
+     * @return ResponseFactory|JsonResponse|RedirectResponse|Response|Redirector
+     */
+    public function options(Request $request)
+    {
+        $class = $this->newModelInstance();
+
+        if (!($class instanceof HasLinks)) {
+            throw new InvalidArgumentException('OPTIONS only works for models implementing HasLinks');
+        }
+
+        foreach ($request->input() as $key => $value) {
+            $class->$key = $value;
+        }
+
+        return $this->return($request, $class->buildLinks(), 'options');
     }
 }

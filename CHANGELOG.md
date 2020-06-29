@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No Planned Releases_
 
+## [1.6.6] - 2020-06-29
+### Changed
+- `saveModel` now protected, so it can be overridden
+
 ## [1.6.5] - 2020-06-22
 ### Changed
 - Added support for PHP 7.4
